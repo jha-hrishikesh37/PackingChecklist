@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wanderlust Pack — Smart Vacation Checklist</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        ocean: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            200: '#99f6e4',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            900: '#134e4a',
+                        },
+                        sunset: {
+                            500: '#f97316',
+                            600: '#ea580c',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Checkbox Animation & Scrollbars */
+        .custom-checkbox input:checked + div {
+            background-color: #0d9488;
+            border-color: #0d9488;
+        }
+        .custom-checkbox input:checked + div svg {
+            transform: scale(1);
+            opacity: 1;
+        }
+        .item-row {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .item-row:hover .delete-btn {
+            opacity: 1;
+        }
+        .progress-bar-fill {
+            transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-4px); }
+        }
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen font-sans pb-16 selection:bg-ocean-200 selection:text-ocean-900">
+
+    <!-- Top Decorative Banner / Header -->
+    <header class="relative bg-gradient-to-br from-ocean-900 via-ocean-700 to-teal-600 text-white pt-8 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden shadow-lg">
+        <!-- Decorative SVG Background Pattern -->
+        <div class="absolute inset-0 opacity-10 pointer-events-none">
+            <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 300" preserveAspectRatio="none">
+                <path d="M0,100 C150,200 350,0 500,100 C650,200 850,0 1000,100 L1000,300 L0,300 Z" fill="currentColor"></path>
+            </svg>
+        </div>
+
+        <div class="max-w-5xl mx-auto relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div class="flex items-center gap-3.5">
+                <div class="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center border border-white/25 shadow-inner animate-float">
+                    <i class="ph-fill ph-airplane-tilt text-2xl text-amber-300"></i>
+                </div>
+                <div>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-ocean-100 bg-white/10 px-2.5 py-0.5 rounded-full border border-white/15">Smart Travel Companion</span>
+                    <h1 id="trip-title" class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mt-1 flex items-center gap-2 cursor-pointer group" onclick="editTripTitle()" title="Click to rename trip">
+                        <span id="trip-title-text">Tropical Getaway Packing List</span>
+                        <i class="ph ph-pencil-simple text-base opacity-60 group-hover:opacity-100 transition-opacity"></i>
+                    </h1>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-wrap items-center gap-2 self-stretch md:self-auto justify-end">
+                <button onclick="openModal('uncheck-modal')" class="flex-1 md:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-white/10 hover:bg-white/20 text-white border border-white/15 backdrop-blur-sm transition active:scale-95">
+                    <i class="ph ph-arrow-counter-clockwise text-base"></i>
+                    <span>Uncheck All</span>
+                </button>
+                <button onclick="openModal('reset-modal')" class="flex-1 md:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-rose-500/20 hover:bg-rose-500/30 text-rose-100 border border-rose-300/20 backdrop-blur-sm transition active:scale-95">
+                    <i class="ph ph-sparkle text-base"></i>
+                    <span>Reset Defaults</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-20 space-y-6">
+
+        <!-- Sticky Progress & Controls Card -->
+        <section class="bg-white rounded-2xl shadow-xl shadow-slate-900/5 border border-slate-200/80 p-5 sm:p-6 sticky top-3 z-30 backdrop-blur-xl bg-white/95">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                <div class="flex items-center gap-2.5">
+                    <span id="status-badge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-ocean-50 text-ocean-700 border border-ocean-200">
+                        <i id="status-icon" class="ph-fill ph-suitcase-rolling text-sm"></i>
+                        <span id="status-text">Getting Started</span>
+                    </span>
+                    <span class="text-sm text-slate-500 font-medium" id="stats-counter">0 of 0 items packed</span>
+                </div>
+                <div class="flex items-baseline gap-1">
+                    <span id="progress-percentage" class="font-display text-2xl sm:text-3xl font-extrabold text-ocean-600">0%</span>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Ready</span>
+                </div>
+            </div>
+
+            <!-- Progress Bar Track -->
+            <div class="w-full h-3.5 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200/60 shadow-inner">
+                <div id="progress-bar" class="progress-bar-fill h-full bg-gradient-to-r from-ocean-500 via-teal-500 to-emerald-400 rounded-full w-0 relative"></div>
+            </div>
+
+            <!-- Add Item & Filter Bar -->
+            <div class="mt-5 pt-4 border-t border-slate-100 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+                
+                <!-- Quick Add Form -->
+                <form id="add-item-form" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-1">
+                    <div class="relative flex-1">
+                        <i class="ph ph-plus-circle absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+                        <input 
+                            type="text" 
+                            id="new-item-input" 
+                            placeholder="Add an item (e.g., Polarized Sunglasses)..." 
+                            required
+                            class="w-full pl-10 pr-4 py-2.5 bg-slate-50 hover:bg-slate-100/70 focus:bg-white rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-ocean-500/30 focus:border-ocean-500 transition"
+                        >
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <select 
+                            id="new-item-category" 
+                            class="flex-1 sm:w-44 py-2.5 px-3 bg-slate-50 hover:bg-slate-100/70 focus:bg-white rounded-xl border border-slate-200 text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-ocean-500/30 focus:border-ocean-500 transition cursor-pointer"
+                        >
+                            <!-- Populated dynamically -->
+                        </select>
+                        <button 
+                            type="submit" 
+                            class="px-4 py-2.5 bg-ocean-600 hover:bg-ocean-700 active:scale-95 text-white font-semibold text-sm rounded-xl shadow-sm shadow-ocean-600/20 transition flex items-center gap-1.5 shrink-0"
+                        >
+                            <i class="ph-bold ph-plus"></i>
+                            <span>Add</span>
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Filter Pills & Search -->
+                <div class="flex items-center justify-between sm:justify-end gap-2 border-t lg:border-t-0 pt-3 lg:pt-0 border-slate-100">
+                    <div class="relative flex-1 sm:w-44 sm:flex-initial">
+                        <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                        <input 
+                            type="text" 
+                            id="search-input" 
+                            placeholder="Filter items..." 
+                            class="w-full pl-8 pr-7 py-1.5 bg-slate-50 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-ocean-500/30 focus:border-ocean-500 transition"
+                        >
+                        <button id="clear-search" onclick="clearSearch()" class="hidden absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                            <i class="ph-fill ph-x-circle text-sm"></i>
+                        </button>
+                    </div>
+
+                    <div class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/60 shrink-0" role="group">
+                        <button type="button" onclick="setFilter('all')" id="filter-all" class="filter-btn px-3 py-1 rounded-lg text-xs font-semibold transition bg-white text-slate-800 shadow-sm">
+                            All
+                        </button>
+                        <button type="button" onclick="setFilter('unpacked')" id="filter-unpacked" class="filter-btn px-3 py-1 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900">
+                            To Pack
+                        </button>
+                        <button type="button" onclick="setFilter('packed')" id="filter-packed" class="filter-btn px-3 py-1 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900">
+                            Packed
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Empty State (Shown when filter matches nothing) -->
+        <div id="empty-state" class="hidden bg-white rounded-2xl border border-dashed border-slate-300 p-12 text-center max-w-md mx-auto my-8">
+            <div class="w-14 h-14 rounded-2xl bg-ocean-50 text-ocean-600 flex items-center justify-center mx-auto mb-3">
+                <i class="ph-duotone ph-palm-tree text-3xl"></i>
+            </div>
+            <h3 class="font-display font-bold text-slate-800 text-lg" id="empty-state-title">No matching items</h3>
+            <p class="text-slate-500 text-sm mt-1" id="empty-state-desc">Try changing your filter or adding a new item above.</p>
+            <button onclick="resetFilters()" class="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-ocean-600 hover:text-ocean-700 bg-ocean-50 hover:bg-ocean-100 px-3.5 py-2 rounded-xl transition">
+                <i class="ph-bold ph-funnel-x"></i>
+                <span>Show All Items</span>
+            </button>
+        </div>
+
+        <!-- Categories Grid -->
+        <section id="categories-grid" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <!-- Categories rendered dynamically by JavaScript -->
+        </section>
+
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 pointer-events-none transition-all duration-300 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl flex items-center gap-2.5 text-sm font-medium border border-slate-700">
+        <i id="toast-icon" class="ph-fill ph-check-circle text-emerald-400 text-lg"></i>
+        <span id="toast-message">Action completed</span>
+    </div>
+
+    <!-- Confirmation Modal: Uncheck All -->
+    <div id="uncheck-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 animate-scale-in">
+            <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-4">
+                <i class="ph-fill ph-arrow-counter-clockwise text-2xl"></i>
+            </div>
+            <h3 class="font-display text-lg font-bold text-slate-900">Uncheck all items?</h3>
+            <p class="text-sm text-slate-500 mt-1">This will mark all packed items as unpacked so you can reuse your list for your next adventure. Your custom items will be kept.</p>
+            <div class="mt-6 flex items-center justify-end gap-2">
+                <button onclick="closeModal('uncheck-modal')" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition">Cancel</button>
+                <button onclick="confirmUncheckAll()" class="px-4 py-2 rounded-xl text-sm font-semibold bg-amber-500 hover:bg-amber-600 text-white shadow-sm transition">Yes, Uncheck All</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal: Reset Defaults -->
+    <div id="reset-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100">
+            <div class="w-11 h-11 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center mb-4">
+                <i class="ph-fill ph-warning-circle text-2xl"></i>
+            </div>
+            <h3 class="font-display text-lg font-bold text-slate-900">Reset to default checklist?</h3>
+            <p class="text-sm text-slate-500 mt-1">This will restore the original starter packing list and remove any custom items you've added.</p>
+            <div class="mt-6 flex items-center justify-end gap-2">
+                <button onclick="closeModal('reset-modal')" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition">Cancel</button>
+                <button onclick="confirmResetDefaults()" class="px-4 py-2 rounded-xl text-sm font-semibold bg-rose-600 hover:bg-rose-700 text-white shadow-sm transition">Reset List</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Edit Trip Title -->
+    <div id="title-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100">
+            <h3 class="font-display text-lg font-bold text-slate-900 mb-3">Rename Your Trip</h3>
+            <input type="text" id="trip-title-input" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-ocean-500/30 focus:border-ocean-500" placeholder="e.g., Summer in Amalfi Coast">
+            <div class="mt-5 flex items-center justify-end gap-2">
+                <button onclick="closeModal('title-modal')" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition">Cancel</button>
+                <button onclick="saveTripTitle()" class="px-4 py-2 rounded-xl text-sm font-semibold bg-ocean-600 hover:bg-ocean-700 text-white shadow-sm transition">Save Name</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Default Categories & Items ---
+        const DEFAULT_DATA = {
+            tripTitle: "Tropical Getaway Packing List",
+            categories: [
+                {
+                    id: 'essentials',
+                    name: 'Essentials & Documents',
+                    icon: 'ph-Identification-badge',
+                    accent: 'amber',
+                    items: [
+                        { id: 'e1', text: 'Passport / Government ID', packed: false, qty: 1 },
+                        { id: 'e2', text: 'Boarding Passes & Tickets', packed: false, qty: 1 },
+                        { id: 'e3', text: 'Credit Cards & Local Currency', packed: false, qty: 1 },
+                        { id: 'e4', text: 'Travel Insurance Info', packed: false, qty: 1 },
+                        { id: 'e5', text: 'Hotel & Rental Confirmations', packed: false, qty: 1 },
+                        { id: 'e6', text: 'House Keys & Emergency Contacts', packed: false, qty: 1 }
+                    ]
+                },
+                {
+                    id: 'clothing',
+                    name: 'Clothing & Footwear',
+                    icon: 'ph-t-shirt',
+                    accent: 'sky',
+                    items: [
+                        { id: 'c1', text: 'T-Shirts & Casual Tops', packed: false, qty: 5 },
+                        { id: 'c2', text: 'Shorts / Breathable Pants', packed: false, qty: 3 },
+                        { id: 'c3', text: 'Underwear & Socks', packed: false, qty: 7 },
+                        { id: 'c4', text: 'Swimwear / Trunks', packed: false, qty: 2 },
+                        { id: 'c5', text: 'Light Jacket or Evening Sweater', packed: false, qty: 1 },
+                        { id: 'c6', text: 'Comfortable Walking Shoes', packed: false, qty: 1 },
+                        { id: 'c7', text: 'Sandals / Flip-Flops', packed: false, qty: 1 },
+                        { id: 'c8', text: 'Sleepwear', packed: false, qty: 2 }
+                    ]
+                },
+                {
+                    id: 'toiletries',
+                    name: 'Toiletries & Health',
+                    icon: 'ph-first-aid-kit',
+                    accent: 'emerald',
+                    items: [
+                        { id: 't1', text: 'Toothbrush, Toothpaste & Floss', packed: false, qty: 1 },
+                        { id: 't2', text: 'Reef-Safe Sunscreen (SPF 30+)', packed: false, qty: 1 },
+                        { id: 't3', text: 'Deodorant & Perfume', packed: false, qty: 1 },
+                        { id: 't4', text: 'Shampoo & Body Wash (Travel Size)', packed: false, qty: 1 },
+                        { id: 't5', text: 'Personal Medications & Pain Relievers', packed: false, qty: 1 },
+                        { id: 't6', text: 'Band-Aids & Hand Sanitizer', packed: false, qty: 1 },
+                        { id: 't7', text: 'Lip Balm & After-Sun Lotion', packed: false, qty: 1 }
+                    ]
+                },
+                {
+                    id: 'electronics',
+                    name: 'Electronics & Gear',
+                    icon: 'ph-device-mobile-camera',
+                    accent: 'violet',
+                    items: [
+                        { id: 'el1', text: 'Smartphone & Charging Cable', packed: false, qty: 1 },
+                        { id: 'el2', text: 'Portable Power Bank', packed: false, qty: 1 },
+                        { id: 'el3', text: 'Noise-Canceling Headphones', packed: false, qty: 1 },
+                        { id: 'el4', text: 'Universal Travel Adapter', packed: false, qty: 1 },
+                        { id: 'el5', text: 'E-Reader or Tablet', packed: false, qty: 1 },
+                        { id: 'el6', text: 'Camera & Extra SD Card', packed: false, qty: 1 }
+                    ]
+                },
+                {
+                    id: 'extras',
+                    name: 'Beach & Comfort Extras',
+                    icon: 'ph-sunglasses',
+                    accent: 'rose',
+                    items: [
+                        { id: 'ex1', text: 'Polarized Sunglasses & Sun Hat', packed: false, qty: 1 },
+                        { id: 'ex2', text: 'Reusable Water Bottle', packed: false, qty: 1 },
+                        { id: 'ex3', text: 'Foldable Daypack / Beach Tote', packed: false, qty: 1 },
+                        { id: 'ex4', text: 'Travel Pillow & Eye Mask', packed: false, qty: 1 },
+                        { id: 'ex5', text: 'Waterproof Phone Pouch', packed: false, qty: 1 },
+                        { id: 'ex6', text: 'Laundry Bag for Dirty Clothes', packed: false, qty: 1 }
+                    ]
+                }
+            ]
+        };
+
+        // Accent color mapping for Tailwind classes
+        const ACCENT_STYLES = {
+            amber: {
+                bg: 'bg-amber-50',
+                text: 'text-amber-600',
+                border: 'border-amber-200',
+                badge: 'bg-amber-100/80 text-amber-800',
+                bar: 'bg-amber-500'
+            },
+            sky: {
+                bg: 'bg-sky-50',
+                text: 'text-sky-600',
+                border: 'border-sky-200',
+                badge: 'bg-sky-100/80 text-sky-800',
+                bar: 'bg-sky-500'
+            },
+            emerald: {
+                bg: 'bg-emerald-50',
+                text: 'text-emerald-600',
+                border: 'border-emerald-200',
+                badge: 'bg-emerald-100/80 text-emerald-800',
+                bar: 'bg-emerald-500'
+            },
+            violet: {
+                bg: 'bg-violet-50',
+                text: 'text-violet-600',
+                border: 'border-violet-200',
+                badge: 'bg-violet-100/80 text-violet-800',
+                bar: 'bg-violet-500'
+            },
+            rose: {
+                bg: 'bg-rose-50',
+                text: 'text-rose-600',
+                border: 'border-rose-200',
+                badge: 'bg-rose-100/80 text-rose-800',
+                bar: 'bg-rose-500'
+            }
+        };
+
+        const STORAGE_KEY = 'wanderlust_packing_checklist_v1';
+
+        // Application State
+        let state = {
+            tripTitle: DEFAULT_DATA.tripTitle,
+            categories: [],
+            filter: 'all', // 'all' | 'unpacked' | 'packed'
+            searchQuery: ''
+        };
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            loadState();
+            populateCategorySelect();
+            renderApp();
+
+            // Event Listeners
+            document.getElementById('add-item-form').addEventListener('submit', handleAddItem);
+            
+            const searchInput = document.getElementById('search-input');
+            searchInput.addEventListener('input', (e) => {
+                state.searchQuery = e.target.value.trim().toLowerCase();
+                document.getElementById('clear-search').classList.toggle('hidden', !state.searchQuery);
+                renderCategories();
+            });
+        });
+
+        // --- LocalStorage Management ---
+        function loadState() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    state.tripTitle = parsed.tripTitle || DEFAULT_DATA.tripTitle;
+                    state.categories = parsed.categories || JSON.parse(JSON.stringify(DEFAULT_DATA.categories));
+                } else {
+                    state.categories = JSON.parse(JSON.stringify(DEFAULT_DATA.categories));
+                }
+            } catch (e) {
+                console.error('Error loading from localStorage:', e);
+                state.categories = JSON.parse(JSON.stringify(DEFAULT_DATA.categories));
+            }
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                    tripTitle: state.tripTitle,
+                    categories: state.categories
+                }));
+            } catch (e) {
+                console.error('Error saving to localStorage:', e);
+            }
+        }
+
+        // --- Core UI Rendering ---
+        function renderApp() {
+            document.getElementById('trip-title-text').textContent = state.tripTitle;
+            updateProgressBar();
+            renderCategories();
+        }
+
+        function populateCategorySelect() {
+            const select = document.getElementById('new-item-category');
+            select.innerHTML = state.categories.map(cat => 
+                `<option value="${cat.id}">${cat.name}</option>`
+            ).join('');
+        }
+
+        function updateProgressBar() {
+            let totalItems = 0;
+            let packedItems = 0;
+
+            state.categories.forEach(cat => {
+                totalItems += cat.items.length;
+                packedItems += cat.items.filter(item => item.packed).length;
+            });
+
+            const pct = totalItems === 0 ? 0 : Math.round((packedItems / totalItems) * 100);
+
+            document.getElementById('stats-counter').textContent = `${packedItems} of ${totalItems} items packed`;
+            document.getElementById('progress-percentage').textContent = `${pct}%`;
+            document.getElementById('progress-bar').style.width = `${pct}%`;
+
+            // Update status badge dynamically based on completion percentage
+            const statusBadge = document.getElementById('status-badge');
+            const statusIcon = document.getElementById('status-icon');
+            const statusText = document.getElementById('status-text');
+
+            if (totalItems === 0) {
+                statusBadge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200';
+                statusIcon.className = 'ph-fill ph-notepad text-sm';
+                statusText.textContent = 'List Empty';
+            } else if (pct === 0) {
+                statusBadge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200';
+                statusIcon.className = 'ph-fill ph-suitcase-rolling text-sm';
+                statusText.textContent = 'Ready to Pack';
+            } else if (pct < 50) {
+                statusBadge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200';
+                statusIcon.className = 'ph-fill ph-clock-countdown text-sm';
+                statusText.textContent = 'Packing in Progress';
+            } else if (pct < 100) {
+                statusBadge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-ocean-50 text-ocean-700 border border-ocean-200';
+                statusIcon.className = 'ph-fill ph-lightning text-sm';
+                statusText.textContent = 'Almost Ready!';
+            } else {
+                statusBadge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200';
+                statusIcon.className = 'ph-fill ph-Seal-Check text-sm';
+                statusText.textContent = 'All Packed & Ready for Takeoff! ✈️';
+            }
+        }
+
+        function renderCategories() {
+            const grid = document.getElementById('categories-grid');
+            const emptyState = document.getElementById('empty-state');
+            let visibleCategoriesCount = 0;
+
+            const html = state.categories.map(cat => {
+                const style = ACCENT_STYLES[cat.accent] || ACCENT_STYLES.sky;
+                
+                // Filter items based on active filter & search query
+                const filteredItems = cat.items.filter(item => {
+                    const matchesFilter = 
+                        state.filter === 'all' ||
+                        (state.filter === 'packed' && item.packed) ||
+                        (state.filter === 'unpacked' && !item.packed);
+                    
+                    const matchesSearch = !state.searchQuery || 
+                        item.text.toLowerCase().includes(state.searchQuery);
+
+                    return matchesFilter && matchesSearch;
+                });
+
+                // Hide category card if filtering leaves 0 items
+                if (filteredItems.length === 0 && (state.filter !== 'all' || state.searchQuery !== '')) {
+                    return '';
+                }
+
+                visibleCategoriesCount++;
+
+                const totalInCat = cat.items.length;
+                const packedInCat = cat.items.filter(i => i.packed).length;
+                const catPct = totalInCat === 0 ? 0 : Math.round((packedInCat / totalInCat) * 100);
+                const allCatPacked = totalInCat > 0 && packedInCat === totalInCat;
+
+                return `
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-shadow flex flex-col overflow-hidden">
+                    <!-- Category Header -->
+                    <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between gap-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl ${style.bg} ${style.text} border ${style.border} flex items-center justify-center shrink-0">
+                                <i class="ph-duotone ${cat.icon} text-xl"></i>
+                            </div>
+                            <div>
+                                <h2 class="font-display font-bold text-slate-800 text-base flex items-center gap-1.5">
+                                    <span>${escapeHtml(cat.name)}</span>
+                                    ${allCatPacked ? `<i class="ph-fill ph-check-circle text-emerald-500 text-base" title="Category complete!"></i>` : ''}
+                                </h2>
+                                <p class="text-xs text-slate-400 font-medium">${packedInCat} of ${totalInCat} packed</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            ${totalInCat > 0 ? `
+                            <button 
+                                onclick="toggleCategoryAll('${cat.id}')" 
+                                class="text-xs font-medium text-slate-500 hover:text-ocean-600 px-2.5 py-1 rounded-lg hover:bg-slate-50 transition"
+                                title="${allCatPacked ? 'Uncheck category' : 'Check all in category'}"
+                            >
+                                ${allCatPacked ? 'Uncheck all' : 'Check all'}
+                            </button>
+                            ` : ''}
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold ${style.badge}">
+                                ${catPct}%
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Mini Category Progress Bar -->
+                    <div class="w-full h-1 bg-slate-100">
+                        <div class="h-full ${style.bar} transition-all duration-300" style="width: ${catPct}%"></div>
+                    </div>
+
+                    <!-- Items List -->
+                    <div class="divide-y divide-slate-100 flex-1">
+                        ${filteredItems.length === 0 ? `
+                            <div class="p-8 text-center text-slate-400 text-xs">
+                                No items in this category yet. Add one below!
+                            </div>
+                        ` : filteredItems.map(item => `
+                            <div class="item-row flex items-center justify-between gap-3 px-4 sm:px-5 py-3 hover:bg-slate-50/80 group ${item.packed ? 'bg-slate-50/40' : ''}">
+                                <label class="custom-checkbox flex items-center gap-3 flex-1 cursor-pointer select-none min-w-0">
+                                    <input 
+                                        type="checkbox" 
+                                        class="sr-only" 
+                                        ${item.packed ? 'checked' : ''} 
+                                        onchange="toggleItem('${cat.id}', '${item.id}')"
+                                    >
+                                    <div class="w-5 h-5 rounded-md border-2 border-slate-300 flex items-center justify-center transition-colors shrink-0 group-hover:border-ocean-500">
+                                        <svg class="w-3.5 h-3.5 text-white transform scale-50 opacity-0 transition-all duration-150 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </div>
+                                    <span class="text-sm font-medium truncate transition-all ${item.packed ? 'line-through text-slate-400' : 'text-slate-700'}">
+                                        ${escapeHtml(item.text)}
+                                    </span>
+                                </label>
+
+                                <!-- Quantity Controls & Delete -->
+                                <div class="flex items-center gap-1.5 shrink-0">
+                                    <div class="inline-flex items-center bg-slate-100/80 rounded-lg border border-slate-200/60 p-0.5">
+                                        <button 
+                                            type="button"
+                                            onclick="changeQty('${cat.id}', '${item.id}', -1)" 
+                                            class="w-5 h-5 rounded text-slate-500 hover:bg-white hover:text-slate-800 flex items-center justify-center text-xs transition"
+                                            title="Decrease quantity"
+                                        >-</button>
+                                        <span class="px-1.5 text-xs font-semibold text-slate-600 min-w-[1.5rem] text-center">${item.qty || 1}x</span>
+                                        <button 
+                                            type="button"
+                                            onclick="changeQty('${cat.id}', '${item.id}', 1)" 
+                                            class="w-5 h-5 rounded text-slate-500 hover:bg-white hover:text-slate-800 flex items-center justify-center text-xs transition"
+                                            title="Increase quantity"
+                                        >+</button>
+                                    </div>
+
+                                    <button 
+                                        type="button"
+                                        onclick="deleteItem('${cat.id}', '${item.id}')" 
+                                        class="delete-btn sm:opacity-0 focus:opacity-100 p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
+                                        title="Delete item"
+                                    >
+                                        <i class="ph ph-trash text-base"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <!-- Quick Inline Add for Category -->
+                    <form onsubmit="handleInlineAdd(event, '${cat.id}')" class="p-2.5 bg-slate-50/70 border-t border-slate-100 flex items-center gap-2">
+                        <input 
+                            type="text" 
+                            placeholder="Add to ${escapeHtml(cat.name)}..." 
+                            class="flex-1 text-xs bg-white px-3 py-2 rounded-lg border border-slate-200/80 focus:outline-none focus:border-ocean-500 transition"
+                            required
+                        >
+                        <button type="submit" class="px-2.5 py-2 rounded-lg bg-slate-200/70 hover:bg-ocean-600 hover:text-white text-slate-600 text-xs font-semibold transition flex items-center gap-1">
+                            <i class="ph-bold ph-plus"></i>
+                            <span>Add</span>
+                        </button>
+                    </form>
+                </div>
+                `;
+            }).join('');
+
+            grid.innerHTML = html;
+
+            // Toggle empty state visibility
+            if (visibleCategoriesCount === 0) {
+                emptyState.classList.remove('hidden');
+                grid.classList.add('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                grid.classList.remove('hidden');
+            }
+        }
+
+        // --- User Interactions ---
+        function toggleItem(categoryId, itemId) {
+            const cat = state.categories.find(c => c.id === categoryId);
+            if (!cat) return;
+            const item = cat.items.find(i => i.id === itemId);
+            if (!item) return;
+
+            item.packed = !item.packed;
+            saveState();
+            updateProgressBar();
+            renderCategories();
+        }
+
+        function toggleCategoryAll(categoryId) {
+            const cat = state.categories.find(c => c.id === categoryId);
+            if (!cat || cat.items.length === 0) return;
+
+            const allPacked = cat.items.every(i => i.packed);
+            cat.items.forEach(i => i.packed = !allPacked);
+
+            saveState();
+            updateProgressBar();
+            renderCategories();
+            showToast(allPacked ? `Unchecked ${cat.name}` : `Packed all ${cat.name}!`);
+        }
+
+        function changeQty(categoryId, itemId, delta) {
+            const cat = state.categories.find(c => c.id === categoryId);
+            if (!cat) return;
+            const item = cat.items.find(i => i.id === itemId);
+            if (!item) return;
+
+            const currentQty = item.qty || 1;
+            const nextQty = Math.max(1, Math.min(99, currentQty + delta));
+            if (nextQty === currentQty) return;
+
+            item.qty = nextQty;
+            saveState();
+            renderCategories();
+        }
+
+        function handleAddItem(e) {
+            e.preventDefault();
+            const input = document.getElementById('new-item-input');
+            const categorySelect = document.getElementById('new-item-category');
+            const text = input.value.trim();
+
+            if (!text) return;
+
+            addItemToCategory(categorySelect.value, text);
+            input.value = '';
+            input.focus();
+        }
+
+        function handleInlineAdd(e, categoryId) {
+            e.preventDefault();
+            const input = e.target.querySelector('input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            addItemToCategory(categoryId, text);
+            input.value = '';
+        }
+
+        function addItemToCategory(categoryId, text) {
+            const cat = state.categories.find(c => c.id === categoryId);
+            if (!cat) return;
+
+            const newItem = {
+                id: 'item_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+                text: text,
+                packed: false,
+                qty: 1
+            };
+
+            cat.items.push(newItem);
+            saveState();
+            updateProgressBar();
+            renderCategories();
+            showToast(`Added "${text}" to ${cat.name}`);
+        }
+
+        function deleteItem(categoryId, itemId) {
+            const cat = state.categories.find(c => c.id === categoryId);
+            if (!cat) return;
+            const itemIndex = cat.items.findIndex(i => i.id === itemId);
+            if (itemIndex === -1) return;
+
+            const removed = cat.items.splice(itemIndex, 1)[0];
+            saveState();
+            updateProgressBar();
+            renderCategories();
+            showToast(`Removed "${removed.text}"`);
+        }
+
+        // --- Filtering & Searching ---
+        function setFilter(filterType) {
+            state.filter = filterType;
+            
+            // Update active button styles
+            ['all', 'unpacked', 'packed'].forEach(type => {
+                const btn = document.getElementById(`filter-${type}`);
+                if (type === filterType) {
+                    btn.className = 'filter-btn px-3 py-1 rounded-lg text-xs font-semibold transition bg-white text-slate-800 shadow-sm';
+                } else {
+                    btn.className = 'filter-btn px-3 py-1 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900';
+                }
+            });
+
+            renderCategories();
+        }
+
+        function clearSearch() {
+            const searchInput = document.getElementById('search-input');
+            searchInput.value = '';
+            state.searchQuery = '';
+            document.getElementById('clear-search').classList.add('hidden');
+            renderCategories();
+        }
+
+        function resetFilters() {
+            clearSearch();
+            setFilter('all');
+        }
+
+        // --- Modals & Global Actions ---
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function confirmUncheckAll() {
+            state.categories.forEach(cat => {
+                cat.items.forEach(item => item.packed = false);
+            });
+            saveState();
+            updateProgressBar();
+            renderCategories();
+            closeModal('uncheck-modal');
+            showToast('All items unchecked and ready for a new trip!');
+        }
+
+        function confirmResetDefaults() {
+            state.tripTitle = DEFAULT_DATA.tripTitle;
+            state.categories = JSON.parse(JSON.stringify(DEFAULT_DATA.categories));
+            saveState();
+            resetFilters();
+            renderApp();
+            closeModal('reset-modal');
+            showToast('Checklist restored to default items');
+        }
+
+        function editTripTitle() {
+            const input = document.getElementById('trip-title-input');
+            input.value = state.tripTitle;
+            openModal('title-modal');
+            setTimeout(() => input.focus(), 50);
+        }
+
+        function saveTripTitle() {
+            const input = document.getElementById('trip-title-input');
+            const newTitle = input.value.trim();
+            if (newTitle) {
+                state.tripTitle = newTitle;
+                document.getElementById('trip-title-text').textContent = newTitle;
+                saveState();
+                showToast('Trip name updated!');
+            }
+            closeModal('title-modal');
+        }
+
+        // --- Utilities ---
+        let toastTimeout;
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = message;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2600);
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
