@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wanderlust Pack — Smart Vacation Checklist</title>
+    <title>Wanderlust Pack — Smart Vacation Checklist & AI Trip Planner</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Inter & Plus Jakarta Sans -->
@@ -66,6 +66,34 @@
         .animate-float {
             animation: float 3s ease-in-out infinite;
         }
+
+        /* AI Trip Planner & Micro-Animations */
+        @keyframes progress-indeterminate {
+            0% { transform: translateX(-100%); }
+            50% { transform: translateX(50%); }
+            100% { transform: translateX(200%); }
+        }
+        .animate-progress-indeterminate {
+            animation: progress-indeterminate 1.8s ease-in-out infinite;
+            width: 45%;
+        }
+        @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+            animation: spin-slow 10s linear infinite;
+        }
+        @keyframes pulse-subtle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.88; }
+        }
+        .animate-pulse-subtle {
+            animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        .ai-card-glow {
+            box-shadow: 0 10px 25px -5px rgba(13, 148, 136, 0.08), 0 8px 10px -6px rgba(13, 148, 136, 0.05);
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen font-sans pb-16 selection:bg-ocean-200 selection:text-ocean-900">
@@ -95,6 +123,10 @@
 
             <!-- Action Buttons -->
             <div class="flex flex-wrap items-center gap-2 self-stretch md:self-auto justify-end">
+                <button onclick="toggleAiPlanner(true)" class="flex-1 md:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-amber-400 hover:bg-amber-300 text-slate-900 shadow-md shadow-amber-900/15 transition active:scale-95" title="Open AI Trip Planner & Smart Packing Sync">
+                    <i class="ph-fill ph-sparkle text-base text-amber-900"></i>
+                    <span>AI Trip Planner</span>
+                </button>
                 <button onclick="openModal('uncheck-modal')" class="flex-1 md:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-white/10 hover:bg-white/20 text-white border border-white/15 backdrop-blur-sm transition active:scale-95">
                     <i class="ph ph-arrow-counter-clockwise text-base"></i>
                     <span>Uncheck All</span>
@@ -109,6 +141,49 @@
 
     <!-- Main Container -->
     <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-20 space-y-6">
+
+        <!-- AI Trip Planner & Smart Packing Sync Section -->
+        <section id="ai-planner-section" class="bg-white rounded-2xl shadow-xl shadow-slate-900/5 border border-slate-200/80 overflow-hidden transition-all duration-300 ai-card-glow">
+            <!-- Planner Header / Toggle Bar -->
+            <div class="p-4 sm:p-5 bg-gradient-to-r from-ocean-50/80 via-slate-50 to-teal-50/50 border-b border-slate-200/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-ocean-600 to-teal-500 text-white flex items-center justify-center shadow-md shadow-ocean-600/20 shrink-0">
+                        <i class="ph-fill ph-sparkle text-xl text-amber-300"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h2 class="font-display font-bold text-slate-800 text-base sm:text-lg">AI Trip Planner & Smart Packing Sync</h2>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-ocean-100 text-ocean-800 border border-ocean-200">AI Powered</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-0.5" id="ai-header-subtitle">
+                            Generate a customized day-by-day itinerary and smart packing list for your next destination.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 self-end sm:self-auto">
+                    <span id="ai-active-trip-pill" class="hidden inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <i class="ph-fill ph-check-circle text-emerald-600"></i>
+                        <span id="ai-active-trip-name">Trip Saved</span>
+                    </span>
+                    <button 
+                        type="button" 
+                        onclick="toggleAiPlanner()" 
+                        id="ai-toggle-btn"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white hover:bg-slate-100 border border-slate-200 shadow-xs transition"
+                        title="Expand or collapse AI trip planner"
+                    >
+                        <span id="ai-toggle-text">Collapse</span>
+                        <i id="ai-toggle-icon" class="ph-bold ph-caret-up text-xs transition-transform duration-200"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Planner Body (Rendered dynamically) -->
+            <div id="ai-planner-body" class="p-5 sm:p-6">
+                <!-- Dynamically populated: Form View, Loading View, or Plan & Packing Results -->
+            </div>
+        </section>
 
         <!-- Sticky Progress & Controls Card -->
         <section class="bg-white rounded-2xl shadow-xl shadow-slate-900/5 border border-slate-200/80 p-5 sm:p-6 sticky top-3 z-30 backdrop-blur-xl bg-white/95">
@@ -262,7 +337,9 @@
     </div>
 
     <script>
-        // --- Default Categories & Items ---
+        // ==========================================
+        // 1. Core Data & Constants
+        // ==========================================
         const DEFAULT_DATA = {
             tripTitle: "Tropical Getaway Packing List",
             categories: [
@@ -342,7 +419,6 @@
             ]
         };
 
-        // Accent color mapping for Tailwind classes
         const ACCENT_STYLES = {
             amber: {
                 bg: 'bg-amber-50',
@@ -382,8 +458,73 @@
         };
 
         const STORAGE_KEY = 'wanderlust_packing_checklist_v1';
+        const STORAGE_KEY_AI = 'wanderlust_ai_trip_plan_v1';
+        const WORKER_URL = 'https://packing-ai-api.jha-hrishikesh98.workers.dev';
 
-        // Application State
+        const MONTHS = [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+
+        // Sample fallback plan for instant testing or when backend model is updating
+        const SAMPLE_AI_PLAN = {
+            destination: "Kyoto, Japan",
+            days: 3,
+            month: "April",
+            activities: "Temples, tea ceremonies, cherry blossom walks, traditional food markets",
+            tripSummary: "A tranquil springtime cultural immersion through Kyoto's historic temples and blooming cherry blossom paths with mild, pleasant weather.",
+            itinerary: [
+                {
+                    day: 1,
+                    title: "Arashiyama Bamboo Grove & Tenryu-ji",
+                    activities: [
+                        "Early morning stroll through the tranquil Arashiyama Bamboo Forest",
+                        "Explore Tenryu-ji Temple and its 14th-century landscape garden",
+                        "Cross the scenic Togetsukyo Bridge and enjoy riverside matcha refreshments",
+                        "Traditional Kaiseki seasonal dinner in historic central Kyoto"
+                    ],
+                    weatherTip: "Mild spring day (~18°C) with brisk evening breezes; layer up with a lightweight cardigan."
+                },
+                {
+                    day: 2,
+                    title: "Fushimi Inari Shrines & Gion District",
+                    activities: [
+                        "Sunrise walk beneath thousands of vermilion Torii gates at Fushimi Inari-Taisha",
+                        "Sample street delicacies at Nishiki Market (wagyu skewers, dango, fresh matcha)",
+                        "Participate in an authentic afternoon Japanese tea ceremony in Higashiyama",
+                        "Dusk walk past historic wooden machiya teahouses along Hanamikoji Street in Gion"
+                    ],
+                    weatherTip: "Sunny and clear (~20°C); comfortable slip-on shoes are essential for frequent temple shoe removal."
+                },
+                {
+                    day: 3,
+                    title: "Kinkaku-ji & The Philosopher's Path",
+                    activities: [
+                        "Visit the iconic Golden Pavilion (Kinkaku-ji) reflecting on the lake",
+                        "Stroll the stone Philosopher’s Path lined with blooming sakura blossoms",
+                        "Pick up handcrafted Kyoto ceramics and green tea in historic Higashiyama",
+                        "Sunset panorama over the city from Kiyomizu-dera wooden stage"
+                    ],
+                    weatherTip: "Scattered spring showers possible in the afternoon (~16°C); carry a compact travel umbrella."
+                }
+            ],
+            packingItems: [
+                { item: "Comfortable Slip-on Walking Shoes", category: "Clothing", reason: "Japanese shrines and traditional ryokans require frequent shoe removal; Kyoto involves 15,000+ daily steps." },
+                { item: "Lightweight Layering Cardigan", category: "Clothing", reason: "April temperatures fluctuate notably between sunny afternoons and brisk spring evenings." },
+                { item: "Compact Wind-Resistant Umbrella", category: "Gear", reason: "Sudden spring rain showers are common during peak cherry blossom season." },
+                { item: "Universal Travel Plug Adapter (Type A)", category: "Electronics", reason: "Japan uses two-prong ungrounded flat sockets compatible with 100V devices." },
+                { item: "High-Capacity Portable Power Bank", category: "Electronics", reason: "Continuous map navigation, translation apps, and photography quickly deplete phone battery." },
+                { item: "Passport with 6+ Months Validity", category: "Documents", reason: "Mandatory for entry into Japan and required on hand for duty-free shopping verification." },
+                { item: "ICOCA / Suica Transit IC Card", category: "Documents", reason: "Essential for seamless contactless tap-to-pay on Kyoto city buses, subways, and convenience stores." },
+                { item: "Blister Prevention Band-Aids", category: "Medical", reason: "Cobblestone temple paths and historic stairways often cause unexpected foot friction." },
+                { item: "Hydrating Lip Balm & Hand Lotion", category: "Toiletries", reason: "Dry spring breezes and frequent purification fountain hand-washing can dry out skin." },
+                { item: "Compact Coin Pouch", category: "Gear", reason: "Japan remains cash-friendly; exact change is useful for temple donations, gachapon, and transit lockers." }
+            ]
+        };
+
+        // ==========================================
+        // 2. Application State
+        // ==========================================
         let state = {
             tripTitle: DEFAULT_DATA.tripTitle,
             categories: [],
@@ -391,11 +532,32 @@
             searchQuery: ''
         };
 
-        // --- Initialization ---
+        let aiTripState = {
+            isExpanded: true,
+            activeTab: 'itinerary', // 'itinerary' | 'packing'
+            currentPlan: null,
+            isLoading: false,
+            loadingStep: 0,
+            error: null,
+            formDraft: {
+                destination: '',
+                days: 5,
+                month: MONTHS[new Date().getMonth()] || 'May',
+                activities: ''
+            }
+        };
+
+        let aiLoadingInterval = null;
+
+        // ==========================================
+        // 3. Initialization
+        // ==========================================
         document.addEventListener('DOMContentLoaded', () => {
             loadState();
+            loadAiPlan();
             populateCategorySelect();
             renderApp();
+            initAiPlanner();
 
             // Event Listeners
             document.getElementById('add-item-form').addEventListener('submit', handleAddItem);
@@ -408,7 +570,9 @@
             });
         });
 
-        // --- LocalStorage Management ---
+        // ==========================================
+        // 4. Checklist LocalStorage Management
+        // ==========================================
         function loadState() {
             try {
                 const saved = localStorage.getItem(STORAGE_KEY);
@@ -420,7 +584,7 @@
                     state.categories = JSON.parse(JSON.stringify(DEFAULT_DATA.categories));
                 }
             } catch (e) {
-                console.error('Error loading from localStorage:', e);
+                console.error('Error loading checklist state:', e);
                 state.categories = JSON.parse(JSON.stringify(DEFAULT_DATA.categories));
             }
         }
@@ -432,11 +596,900 @@
                     categories: state.categories
                 }));
             } catch (e) {
-                console.error('Error saving to localStorage:', e);
+                console.error('Error saving checklist state:', e);
             }
         }
 
-        // --- Core UI Rendering ---
+        // ==========================================
+        // 5. AI Trip Planner & Persistence
+        // ==========================================
+        function loadAiPlan() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY_AI);
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (parsed && parsed.tripSummary && Array.isArray(parsed.itinerary)) {
+                        aiTripState.currentPlan = parsed;
+                        aiTripState.formDraft.destination = parsed.destination || '';
+                        aiTripState.formDraft.days = parsed.days || 5;
+                        aiTripState.formDraft.month = parsed.month || MONTHS[new Date().getMonth()];
+                        aiTripState.formDraft.activities = parsed.activities || '';
+                    }
+                }
+            } catch (e) {
+                console.error('Error loading saved AI trip plan:', e);
+            }
+        }
+
+        function saveAiPlan(plan) {
+            try {
+                localStorage.setItem(STORAGE_KEY_AI, JSON.stringify(plan));
+            } catch (e) {
+                console.error('Error saving AI trip plan:', e);
+            }
+        }
+
+        function clearAiPlan() {
+            try {
+                localStorage.removeItem(STORAGE_KEY_AI);
+            } catch (e) {
+                console.error('Error removing AI trip plan:', e);
+            }
+            aiTripState.currentPlan = null;
+            aiTripState.error = null;
+            aiTripState.activeTab = 'itinerary';
+            renderAiPlanner();
+            showToast('Trip plan cleared. Ready to plan a new journey!');
+        }
+
+        function initAiPlanner() {
+            renderAiPlanner();
+        }
+
+        function toggleAiPlanner(forceOpen = false) {
+            if (forceOpen) {
+                aiTripState.isExpanded = true;
+            } else {
+                aiTripState.isExpanded = !aiTripState.isExpanded;
+            }
+
+            const body = document.getElementById('ai-planner-body');
+            const toggleIcon = document.getElementById('ai-toggle-icon');
+            const toggleText = document.getElementById('ai-toggle-text');
+
+            if (aiTripState.isExpanded) {
+                body.classList.remove('hidden');
+                toggleIcon.classList.remove('rotate-180');
+                toggleText.textContent = 'Collapse';
+                renderAiPlanner();
+                if (forceOpen) {
+                    document.getElementById('ai-planner-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            } else {
+                body.classList.add('hidden');
+                toggleIcon.classList.add('rotate-180');
+                toggleText.textContent = 'Expand';
+            }
+        }
+
+        function switchAiTab(tabName) {
+            aiTripState.activeTab = tabName;
+            renderAiPlanner();
+        }
+
+        function adjustAiDays(delta) {
+            const daysInput = document.getElementById('ai-days');
+            if (!daysInput) return;
+            let current = parseInt(daysInput.value, 10) || 5;
+            let updated = Math.max(1, Math.min(14, current + delta));
+            daysInput.value = updated;
+            aiTripState.formDraft.days = updated;
+        }
+
+        function setAiDays(days) {
+            const daysInput = document.getElementById('ai-days');
+            if (daysInput) {
+                daysInput.value = days;
+                aiTripState.formDraft.days = days;
+            }
+        }
+
+        function addVibeTag(tag) {
+            const textarea = document.getElementById('ai-activities');
+            if (!textarea) return;
+            const current = textarea.value.trim();
+            if (!current) {
+                textarea.value = tag;
+            } else if (!current.includes(tag)) {
+                textarea.value = current + ', ' + tag;
+            }
+            aiTripState.formDraft.activities = textarea.value;
+            textarea.focus();
+        }
+
+        function dismissAiError() {
+            aiTripState.error = null;
+            renderAiPlanner();
+        }
+
+        function editCurrentPlanForm() {
+            aiTripState.currentPlan = null;
+            aiTripState.error = null;
+            renderAiPlanner();
+        }
+
+        function loadSamplePlan() {
+            aiTripState.currentPlan = JSON.parse(JSON.stringify(SAMPLE_AI_PLAN));
+            aiTripState.formDraft.destination = SAMPLE_AI_PLAN.destination;
+            aiTripState.formDraft.days = SAMPLE_AI_PLAN.days;
+            aiTripState.formDraft.month = SAMPLE_AI_PLAN.month;
+            aiTripState.formDraft.activities = SAMPLE_AI_PLAN.activities;
+            aiTripState.error = null;
+            aiTripState.isLoading = false;
+            aiTripState.activeTab = 'itinerary';
+            saveAiPlan(aiTripState.currentPlan);
+            renderAiPlanner();
+            showToast('Loaded sample Kyoto trip plan! ✨');
+        }
+
+        // ==========================================
+        // 6. AI Trip Planner API Call
+        // ==========================================
+        async function handleGenerateAiPlan() {
+            const destInput = document.getElementById('ai-destination');
+            const daysInput = document.getElementById('ai-days');
+            const monthInput = document.getElementById('ai-month');
+            const actInput = document.getElementById('ai-activities');
+
+            const destination = destInput ? destInput.value.trim() : '';
+            const days = daysInput ? parseInt(daysInput.value, 10) : 5;
+            const month = monthInput ? monthInput.value.trim() : '';
+            const activities = actInput ? actInput.value.trim() : '';
+
+            // Update draft
+            aiTripState.formDraft = { destination, days, month, activities };
+
+            // Client-side Validations
+            if (!destination) {
+                showToast('Please enter your destination');
+                if (destInput) destInput.focus();
+                return;
+            }
+            if (isNaN(days) || days < 1 || days > 14) {
+                showToast('Please choose a duration between 1 and 14 days');
+                if (daysInput) daysInput.focus();
+                return;
+            }
+            if (!month) {
+                showToast('Please select your travel month');
+                return;
+            }
+            if (!activities) {
+                showToast('Please describe your travel activities or vibe');
+                if (actInput) actInput.focus();
+                return;
+            }
+
+            // Offline check
+            if (!navigator.onLine) {
+                aiTripState.error = 'You appear to be offline. Please check your internet connection and try again.';
+                renderAiPlanner();
+                return;
+            }
+
+            // Start Loading State
+            aiTripState.isLoading = true;
+            aiTripState.error = null;
+            renderAiPlanner();
+            startLoadingSteps();
+
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 45000); // 45s safety timeout
+
+                const response = await fetch(WORKER_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        destination: destination,
+                        days: days,
+                        month: month,
+                        activities: activities
+                    }),
+                    signal: controller.signal
+                });
+
+                clearTimeout(timeoutId);
+
+                // Handle HTTP rate limit
+                if (response.status === 429) {
+                    throw new Error('AI service rate limit reached. Please wait a few moments and try again.');
+                }
+
+                const data = await response.json().catch(() => null);
+
+                // Handle HTTP or JSON error response from Worker
+                if (!response.ok || (data && data.error)) {
+                    const errorMsg = data && data.error ? data.error : ('Server responded with status ' + response.status + '. Please try again.');
+                    throw new Error(errorMsg);
+                }
+
+                if (!data || !data.tripSummary || !Array.isArray(data.itinerary) || !Array.isArray(data.packingItems)) {
+                    throw new Error('The AI service returned an incomplete response format. Please try again.');
+                }
+
+                // Successful Response!
+                const newPlan = {
+                    destination,
+                    days,
+                    month,
+                    activities,
+                    tripSummary: data.tripSummary,
+                    itinerary: data.itinerary,
+                    packingItems: data.packingItems,
+                    createdAt: new Date().toISOString()
+                };
+
+                aiTripState.currentPlan = newPlan;
+                aiTripState.activeTab = 'itinerary';
+                aiTripState.isLoading = false;
+                aiTripState.error = null;
+                stopLoadingSteps();
+                saveAiPlan(newPlan);
+
+                // If default trip title is still set, suggestively update to match destination
+                if (state.tripTitle === DEFAULT_DATA.tripTitle) {
+                    state.tripTitle = `${destination} Adventure Packing List`;
+                    saveState();
+                    document.getElementById('trip-title-text').textContent = state.tripTitle;
+                }
+
+                renderAiPlanner();
+                showToast(`Generated trip plan for ${destination}! ✨`);
+
+            } catch (err) {
+                stopLoadingSteps();
+                aiTripState.isLoading = false;
+
+                if (err.name === 'AbortError') {
+                    aiTripState.error = 'Request timed out after 45 seconds. The AI model is taking longer than expected. Please try again.';
+                } else {
+                    aiTripState.error = err.message || 'Unable to generate trip plan. Please try again.';
+                }
+
+                renderAiPlanner();
+            }
+        }
+
+        function startLoadingSteps() {
+            const steps = [
+                "Analyzing destination climate & seasonal weather...",
+                "Designing tailored day-by-day travel itinerary...",
+                "Selecting weather-appropriate apparel and essential gear...",
+                "Polishing smart checklist recommendations..."
+            ];
+            let index = 0;
+            aiLoadingInterval = setInterval(() => {
+                index = (index + 1) % steps.length;
+                const statusEl = document.getElementById('ai-loading-step-text');
+                if (statusEl) {
+                    statusEl.textContent = steps[index];
+                }
+            }, 3000);
+        }
+
+        function stopLoadingSteps() {
+            if (aiLoadingInterval) {
+                clearInterval(aiLoadingInterval);
+                aiLoadingInterval = null;
+            }
+        }
+
+        // ==========================================
+        // 7. AI Trip Planner Rendering
+        // ==========================================
+        function renderAiPlanner() {
+            const container = document.getElementById('ai-planner-body');
+            const activePill = document.getElementById('ai-active-trip-pill');
+            const activePillName = document.getElementById('ai-active-trip-name');
+            const subtitle = document.getElementById('ai-header-subtitle');
+
+            if (!container) return;
+
+            // Update top banner pill if plan exists
+            if (aiTripState.currentPlan) {
+                activePill.classList.remove('hidden');
+                activePillName.textContent = `${aiTripState.currentPlan.destination} (${aiTripState.currentPlan.days}d)`;
+                subtitle.textContent = `Viewing active itinerary & smart packing sync for ${aiTripState.currentPlan.destination}.`;
+            } else {
+                activePill.classList.add('hidden');
+                subtitle.textContent = "Generate a customized day-by-day itinerary and smart packing list for your next destination.";
+            }
+
+            // 1. Loading State
+            if (aiTripState.isLoading) {
+                container.innerHTML = `
+                    <div class="py-10 px-4 bg-gradient-to-b from-ocean-50/50 to-slate-50/50 rounded-2xl border border-ocean-100 text-center space-y-4 animate-pulse-subtle">
+                        <div class="relative w-16 h-16 mx-auto">
+                            <div class="w-16 h-16 rounded-2xl bg-ocean-100 flex items-center justify-center text-ocean-600 animate-spin-slow shadow-inner">
+                                <i class="ph-duotone ph-compass text-3xl"></i>
+                            </div>
+                            <div class="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-amber-400 text-slate-900 flex items-center justify-center shadow animate-bounce">
+                                <i class="ph-fill ph-sparkle text-xs text-amber-950"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="font-display font-bold text-slate-800 text-lg">Curating Your Custom Trip & Packing List</h3>
+                            <p id="ai-loading-step-text" class="text-sm text-ocean-700 font-medium mt-1">
+                                Analyzing destination climate & seasonal weather...
+                            </p>
+                        </div>
+                        <div class="max-w-xs mx-auto w-full h-1.5 bg-ocean-100 rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-ocean-500 via-teal-500 to-emerald-400 rounded-full animate-progress-indeterminate"></div>
+                        </div>
+                        <p class="text-xs text-slate-400 pt-2">Powered by Groq LLaMA 3.3 via Cloudflare Worker proxy</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // 2. Results State (Plan Loaded)
+            if (aiTripState.currentPlan) {
+                renderAiPlanResults(container);
+                return;
+            }
+
+            // 3. Form Input State (Default / Planning)
+            renderAiForm(container);
+        }
+
+        function renderAiForm(container) {
+            const draft = aiTripState.formDraft;
+            const currentMonth = draft.month || MONTHS[new Date().getMonth()] || 'May';
+
+            let errorHtml = '';
+            if (aiTripState.error) {
+                const isGroqModelError = aiTripState.error.includes('llama') || aiTripState.error.includes('model');
+                errorHtml = `
+                    <div class="mb-5 p-4 bg-rose-50 border border-rose-200 rounded-xl space-y-2.5">
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+                                <i class="ph-fill ph-warning-circle text-lg"></i>
+                            </div>
+                            <div class="flex-1 text-xs">
+                                <h4 class="font-bold text-rose-900 text-sm">Unable to generate plan</h4>
+                                <p class="text-rose-700 mt-0.5 leading-relaxed">${escapeHtml(aiTripState.error)}</p>
+                                ${isGroqModelError ? `
+                                    <div class="mt-2 p-2.5 bg-white/90 rounded-lg border border-rose-200 text-slate-700 space-y-1">
+                                        <p class="font-semibold text-rose-900">💡 Backend Notice for Worker:</p>
+                                        <p>Groq reported that the model specified in your Cloudflare Worker is unavailable or restricted. Update the model name in your Cloudflare Worker script (e.g. check your Groq console for active models). In the meantime, you can test the full UI with our demo preview!</p>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-end gap-2 pt-1 border-t border-rose-200/60">
+                            <button type="button" onclick="loadSamplePlan()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 transition">
+                                <i class="ph ph-lightning text-amber-500 mr-1"></i>Try Demo Kyoto Plan
+                            </button>
+                            <button type="button" onclick="dismissAiError()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-rose-600 hover:bg-rose-700 text-white transition">
+                                Dismiss
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = `
+                ${errorHtml}
+                <form id="ai-planner-form" onsubmit="event.preventDefault(); handleGenerateAiPlan();" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-12 gap-4">
+                        <!-- Destination Input -->
+                        <div class="sm:col-span-6">
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                                Destination
+                            </label>
+                            <div class="relative">
+                                <i class="ph ph-map-pin absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-base"></i>
+                                <input 
+                                    type="text" 
+                                    id="ai-destination" 
+                                    value="${escapeHtml(draft.destination)}"
+                                    placeholder="e.g., Kyoto, Japan or Amalfi Coast" 
+                                    required
+                                    class="w-full pl-10 pr-4 py-2.5 bg-slate-50 hover:bg-slate-100/70 focus:bg-white rounded-xl border border-slate-200 text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-ocean-500/30 focus:border-ocean-500 transition"
+                                >
+                            </div>
+                        </div>
+
+                        <!-- Duration Stepper -->
+                        <div class="sm:col-span-3">
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                                Duration (Days)
+                            </label>
+                            <div class="flex items-center gap-1.5">
+                                <button 
+                                    type="button" 
+                                    onclick="adjustAiDays(-1)" 
+                                    class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition flex items-center justify-center shrink-0 active:scale-95"
+                                    title="Decrease days"
+                                >-</button>
+                                <input 
+                                    type="number" 
+                                    id="ai-days" 
+                                    min="1" 
+                                    max="14" 
+                                    value="${draft.days || 5}" 
+                                    class="w-full text-center py-2 bg-slate-50 font-bold text-slate-800 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-ocean-500"
+                                >
+                                <button 
+                                    type="button" 
+                                    onclick="adjustAiDays(1)" 
+                                    class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition flex items-center justify-center shrink-0 active:scale-95"
+                                    title="Increase days"
+                                >+</button>
+                            </div>
+                        </div>
+
+                        <!-- Travel Month -->
+                        <div class="sm:col-span-3">
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                                Travel Month
+                            </label>
+                            <select 
+                                id="ai-month" 
+                                class="w-full py-2.5 px-3 bg-slate-50 hover:bg-slate-100/70 focus:bg-white rounded-xl border border-slate-200 text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-ocean-500/30 focus:border-ocean-500 transition cursor-pointer"
+                            >
+                                ${MONTHS.map(m => `<option value="${m}" ${m === currentMonth ? 'selected' : ''}>${m}</option>`).join('')}
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Activities & Vibe -->
+                    <div>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600">
+                                Activities & Travel Vibe
+                            </label>
+                            <span class="text-[11px] text-slate-400">Click chips below to add</span>
+                        </div>
+                        <div class="relative">
+                            <i class="ph ph-compass absolute left-3.5 top-3 text-slate-400 text-base"></i>
+                            <textarea 
+                                id="ai-activities" 
+                                rows="2" 
+                                placeholder="e.g., Cultural sightseeing, temple walks, local street food, photography, relaxing cafes" 
+                                required
+                                class="w-full pl-10 pr-4 py-2.5 bg-slate-50 hover:bg-slate-100/70 focus:bg-white rounded-xl border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-ocean-500/30 focus:border-ocean-500 transition resize-none font-medium"
+                            >${escapeHtml(draft.activities)}</textarea>
+                        </div>
+
+                        <!-- Quick Vibe Presets -->
+                        <div class="flex flex-wrap items-center gap-1.5 mt-2">
+                            <span class="text-[11px] text-slate-400 font-medium mr-1">Vibe Ideas:</span>
+                            <button type="button" onclick="addVibeTag('🌸 Cherry Blossoms & Culture')" class="text-xs px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-ocean-50 hover:text-ocean-700 text-slate-600 border border-slate-200/60 transition active:scale-95">🌸 Cherry Blossoms</button>
+                            <button type="button" onclick="addVibeTag('🏖️ Beach & Relaxation')" class="text-xs px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-ocean-50 hover:text-ocean-700 text-slate-600 border border-slate-200/60 transition active:scale-95">🏖️ Beach & Sun</button>
+                            <button type="button" onclick="addVibeTag('🥾 Mountain Hiking & Scenic Nature')" class="text-xs px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-ocean-50 hover:text-ocean-700 text-slate-600 border border-slate-200/60 transition active:scale-95">🥾 Hiking & Nature</button>
+                            <button type="button" onclick="addVibeTag('🍜 Food Tours & Night Markets')" class="text-xs px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-ocean-50 hover:text-ocean-700 text-slate-600 border border-slate-200/60 transition active:scale-95">🍜 Street Food</button>
+                            <button type="button" onclick="addVibeTag('🏛️ Historic Museums & Architecture')" class="text-xs px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-ocean-50 hover:text-ocean-700 text-slate-600 border border-slate-200/60 transition active:scale-95">🏛️ Historic Walks</button>
+                        </div>
+                    </div>
+
+                    <!-- Action Bar -->
+                    <div class="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                        <div class="flex items-center gap-2">
+                            <button 
+                                type="submit" 
+                                id="ai-generate-btn"
+                                class="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-ocean-600 via-teal-600 to-emerald-600 hover:from-ocean-700 hover:to-emerald-700 active:scale-95 text-white font-semibold text-sm rounded-xl shadow-md shadow-ocean-600/20 transition flex items-center justify-center gap-2 cursor-pointer"
+                            >
+                                <i class="ph-bold ph-sparkle text-amber-300 text-base"></i>
+                                <span>Generate Plan & Packing List</span>
+                            </button>
+                            <button 
+                                type="button" 
+                                onclick="loadSamplePlan()" 
+                                class="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2.5 text-xs font-semibold text-slate-600 hover:text-ocean-700 bg-slate-100 hover:bg-ocean-50 rounded-xl border border-slate-200 transition"
+                                title="Try an instant demonstration plan (Kyoto 3-Day Trip)"
+                            >
+                                <i class="ph-bold ph-lightning text-amber-500"></i>
+                                <span>Instant Demo</span>
+                            </button>
+                        </div>
+
+                        <div class="flex items-center justify-center sm:justify-end gap-1.5 text-xs text-slate-400">
+                            <i class="ph ph-shield-check text-emerald-500"></i>
+                            <span>Strict JSON Mode • Duplicate-Safe Sync</span>
+                        </div>
+                    </div>
+                </form>
+            `;
+        }
+
+        function renderAiPlanResults(container) {
+            const plan = aiTripState.currentPlan;
+            const isItinerary = aiTripState.activeTab === 'itinerary';
+
+            container.innerHTML = `
+                <!-- Trip Summary Hero Banner -->
+                <div class="bg-gradient-to-br from-ocean-900 via-ocean-800 to-teal-900 text-white rounded-2xl p-5 sm:p-6 shadow-md relative overflow-hidden mb-6">
+                    <div class="absolute -right-8 -bottom-8 opacity-10 pointer-events-none text-white text-9xl">
+                        <i class="ph-fill ph-compass"></i>
+                    </div>
+                    <div class="relative z-10 space-y-3">
+                        <div class="flex flex-wrap items-center justify-between gap-3">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-white/15 backdrop-blur-md border border-white/20 text-amber-300">
+                                    <i class="ph-fill ph-map-pin"></i>
+                                    <span>${escapeHtml(plan.destination)}</span>
+                                </span>
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/10 border border-white/15 text-ocean-100">
+                                    <i class="ph ph-calendar"></i>
+                                    <span>${plan.days} Days • ${escapeHtml(plan.month)}</span>
+                                </span>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <button 
+                                    onclick="editCurrentPlanForm()" 
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white/10 hover:bg-white/20 text-white border border-white/15 transition active:scale-95"
+                                    title="Edit destination parameters or plan a new trip"
+                                >
+                                    <i class="ph ph-pencil-simple text-sm"></i>
+                                    <span>Plan New Trip</span>
+                                </button>
+                                <button 
+                                    onclick="clearAiPlan()" 
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-rose-500/20 hover:bg-rose-500/30 text-rose-100 border border-rose-300/20 transition active:scale-95"
+                                    title="Clear saved trip plan"
+                                >
+                                    <i class="ph ph-trash text-sm"></i>
+                                    <span>Clear Plan</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 1-Sentence Summary Callout -->
+                        <div class="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/15">
+                            <div class="flex items-start gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-amber-400/20 text-amber-300 flex items-center justify-center shrink-0 mt-0.5">
+                                    <i class="ph-fill ph-sparkle text-lg"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-sm sm:text-base text-slate-100 leading-relaxed font-medium">
+                                        “${escapeHtml(plan.tripSummary)}”
+                                    </p>
+                                    ${plan.activities ? `
+                                        <p class="mt-2 text-xs text-ocean-200 flex items-center gap-1.5">
+                                            <i class="ph ph-compass text-amber-300"></i>
+                                            <span>Activities & Vibe: ${escapeHtml(plan.activities)}</span>
+                                        </p>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation Tabs: Itinerary vs Smart Packing Sync -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-3 mb-5">
+                    <div class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/70" role="tablist">
+                        <button 
+                            type="button" 
+                            onclick="switchAiTab('itinerary')" 
+                            class="px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition flex items-center gap-2 ${isItinerary ? 'bg-white text-ocean-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'}"
+                        >
+                            <i class="ph-bold ph-calendar-check text-base"></i>
+                            <span>Day-by-Day Itinerary</span>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold ${isItinerary ? 'bg-ocean-100 text-ocean-800' : 'bg-slate-200 text-slate-700'}">
+                                ${plan.itinerary.length}d
+                            </span>
+                        </button>
+                        <button 
+                            type="button" 
+                            onclick="switchAiTab('packing')" 
+                            class="px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition flex items-center gap-2 ${!isItinerary ? 'bg-white text-ocean-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'}"
+                        >
+                            <i class="ph-bold ph-backpack text-base"></i>
+                            <span>Smart Packing Sync</span>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold ${!isItinerary ? 'bg-ocean-100 text-ocean-800' : 'bg-slate-200 text-slate-700'}">
+                                ${plan.packingItems.length}
+                            </span>
+                        </button>
+                    </div>
+
+                    <div class="text-xs text-slate-500 font-medium">
+                        ${isItinerary ? '📅 Daily activities & climate tips' : '🎒 Select items to merge into checklist'}
+                    </div>
+                </div>
+
+                <!-- Tab Content -->
+                <div id="ai-tab-content">
+                    ${isItinerary ? renderAiItineraryHtml(plan.itinerary) : renderAiPackingItemsHtml(plan.packingItems)}
+                </div>
+            `;
+
+            // If on packing tab, initialize counts
+            if (!isItinerary) {
+                updateAiSelectedCount();
+            }
+        }
+
+        function renderAiItineraryHtml(itinerary) {
+            if (!itinerary || itinerary.length === 0) {
+                return `<p class="text-sm text-slate-400 text-center py-8">No itinerary days found.</p>`;
+            }
+
+            return `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    ${itinerary.map(day => `
+                        <div class="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center justify-between gap-2 mb-3">
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-extrabold bg-ocean-50 text-ocean-700 border border-ocean-200">
+                                        <i class="ph-fill ph-calendar text-xs"></i>
+                                        <span>Day ${day.day}</span>
+                                    </span>
+                                </div>
+                                <h3 class="font-display font-bold text-slate-800 text-base mb-3 leading-snug">
+                                    ${escapeHtml(day.title)}
+                                </h3>
+                                
+                                <ul class="space-y-2 mb-4">
+                                    ${(day.activities || []).map(act => `
+                                        <li class="flex items-start gap-2.5 text-xs sm:text-sm text-slate-600">
+                                            <i class="ph-bold ph-check text-ocean-500 mt-1 shrink-0 text-xs"></i>
+                                            <span class="leading-relaxed">${escapeHtml(act)}</span>
+                                        </li>
+                                    `).join('')}
+                                </ul>
+                            </div>
+
+                            ${day.weatherTip ? `
+                                <div class="mt-auto pt-3 border-t border-slate-100 flex items-start gap-2.5 text-xs bg-amber-50/70 text-amber-900 rounded-xl p-3 border border-amber-200/70">
+                                    <i class="ph-fill ph-sun text-amber-500 text-base shrink-0 mt-0.5"></i>
+                                    <span class="leading-relaxed">
+                                        <strong class="font-bold text-amber-950">Daily Weather Tip:</strong> ${escapeHtml(day.weatherTip)}
+                                    </span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderAiPackingItemsHtml(packingItems) {
+            if (!packingItems || packingItems.length === 0) {
+                return `<p class="text-sm text-slate-400 text-center py-8">No packing suggestions generated.</p>`;
+            }
+
+            return `
+                <div class="space-y-4">
+                    <!-- Controls Bar -->
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200/80">
+                        <div>
+                            <h3 class="font-display font-bold text-slate-800 text-sm sm:text-base">AI Recommended Packing Essentials</h3>
+                            <p class="text-xs text-slate-500 mt-0.5">
+                                Pre-selected based on destination climate and activities. Review and add to your checklist.
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-2 self-start sm:self-auto">
+                            <button 
+                                type="button" 
+                                onclick="toggleAllAiItems(true)" 
+                                class="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-ocean-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition active:scale-95"
+                            >
+                                Select All
+                            </button>
+                            <button 
+                                type="button" 
+                                onclick="toggleAllAiItems(false)" 
+                                class="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-ocean-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition active:scale-95"
+                            >
+                                Deselect All
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Items Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="ai-items-grid">
+                        ${packingItems.map((item, idx) => {
+                            const isAlreadyPresent = isItemAlreadyInChecklist(item.item);
+                            const badgeStyle = getAiCategoryBadgeClass(item.category);
+
+                            return `
+                                <div class="bg-white rounded-xl border ${isAlreadyPresent ? 'border-slate-200/60 bg-slate-50/50' : 'border-slate-200 hover:border-ocean-300'} p-3.5 transition flex items-start gap-3">
+                                    <div class="pt-0.5">
+                                        <input 
+                                            type="checkbox" 
+                                            class="ai-item-cb w-4 h-4 rounded text-ocean-600 focus:ring-ocean-500 cursor-pointer ${isAlreadyPresent ? 'opacity-40 cursor-not-allowed' : ''}" 
+                                            data-index="${idx}"
+                                            ${isAlreadyPresent ? 'disabled' : 'checked'}
+                                            onchange="updateAiSelectedCount()"
+                                        >
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex flex-wrap items-center gap-1.5 mb-1">
+                                            <span class="text-sm font-semibold text-slate-800 ${isAlreadyPresent ? 'text-slate-500' : ''}">
+                                                ${escapeHtml(item.item)}
+                                            </span>
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold border ${badgeStyle}">
+                                                ${escapeHtml(item.category || 'Gear')}
+                                            </span>
+                                            ${isAlreadyPresent ? `
+                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                                    <i class="ph-fill ph-check"></i> In Checklist
+                                                </span>
+                                            ` : ''}
+                                        </div>
+                                        <p class="text-xs text-slate-500 leading-relaxed">
+                                            ${escapeHtml(item.reason)}
+                                        </p>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+
+                    <!-- Action Bar -->
+                    <div class="bg-gradient-to-r from-ocean-50 to-teal-50/40 p-4 rounded-xl border border-ocean-200/80 flex flex-col sm:flex-row items-center justify-between gap-3 mt-4">
+                        <div class="text-xs text-slate-600 flex items-center gap-2">
+                            <span id="ai-selected-count-badge" class="font-bold text-ocean-800 bg-ocean-100/80 px-2.5 py-1 rounded-lg border border-ocean-200">
+                                0 items selected
+                            </span>
+                            <span class="text-slate-500 hidden sm:inline">• Existing items in your checklist are safely protected</span>
+                        </div>
+                        <button 
+                            type="button" 
+                            id="ai-add-btn"
+                            onclick="addSelectedAiItemsToChecklist()" 
+                            class="w-full sm:w-auto px-5 py-2.5 bg-ocean-600 hover:bg-ocean-700 active:scale-95 text-white font-semibold text-sm rounded-xl shadow-sm transition flex items-center justify-center gap-2 cursor-pointer"
+                        >
+                            <i class="ph-bold ph-plus-circle text-base"></i>
+                            <span id="ai-add-btn-text">Add Selected Items to My Checklist</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleAllAiItems(select) {
+            const checkboxes = document.querySelectorAll('.ai-item-cb:not(:disabled)');
+            checkboxes.forEach(cb => {
+                cb.checked = select;
+            });
+            updateAiSelectedCount();
+        }
+
+        function updateAiSelectedCount() {
+            const countBadge = document.getElementById('ai-selected-count-badge');
+            const addBtn = document.getElementById('ai-add-btn');
+            const addBtnText = document.getElementById('ai-add-btn-text');
+            const checkedBoxes = document.querySelectorAll('.ai-item-cb:checked');
+
+            const count = checkedBoxes.length;
+            if (countBadge) {
+                countBadge.textContent = `${count} item${count === 1 ? '' : 's'} selected`;
+            }
+            if (addBtnText) {
+                addBtnText.textContent = count > 0 
+                    ? `Add ${count} Selected Item${count === 1 ? '' : 's'} to My Checklist` 
+                    : 'Select Items to Add';
+            }
+            if (addBtn) {
+                addBtn.disabled = count === 0;
+                addBtn.classList.toggle('opacity-50', count === 0);
+                addBtn.classList.toggle('cursor-not-allowed', count === 0);
+            }
+        }
+
+        // ==========================================
+        // 8. Smart Checklist Sync & Duplicate Check
+        // ==========================================
+        function isItemAlreadyInChecklist(itemName) {
+            if (!itemName) return false;
+            const normalized = itemName.trim().toLowerCase();
+            return state.categories.some(cat => 
+                cat.items.some(item => item.text.trim().toLowerCase() === normalized)
+            );
+        }
+
+        function mapAiCategoryToId(catStr) {
+            if (!catStr) return 'extras';
+            const c = catStr.toLowerCase();
+            if (c.includes('cloth') || c.includes('apparel') || c.includes('wear') || c.includes('shoe')) return 'clothing';
+            if (c.includes('toil') || c.includes('hygiene')) return 'toiletries';
+            if (c.includes('medic') || c.includes('health') || c.includes('first aid')) return 'toiletries';
+            if (c.includes('elect') || c.includes('tech') || c.includes('power') || c.includes('cable')) return 'electronics';
+            if (c.includes('doc') || c.includes('essent') || c.includes('pass') || c.includes('ticket')) return 'essentials';
+            if (c.includes('gear') || c.includes('extra') || c.includes('beach') || c.includes('bag')) return 'extras';
+            
+            // Check existing category IDs
+            const match = state.categories.find(cat => cat.id === c || cat.name.toLowerCase().includes(c));
+            if (match) return match.id;
+            return 'extras';
+        }
+
+        function getAiCategoryBadgeClass(category) {
+            const c = (category || '').toLowerCase();
+            if (c.includes('cloth')) return 'bg-sky-100 text-sky-800 border-sky-200';
+            if (c.includes('toil')) return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+            if (c.includes('medic') || c.includes('health')) return 'bg-teal-100 text-teal-800 border-teal-200';
+            if (c.includes('elect')) return 'bg-violet-100 text-violet-800 border-violet-200';
+            if (c.includes('doc') || c.includes('essent')) return 'bg-amber-100 text-amber-800 border-amber-200';
+            if (c.includes('gear') || c.includes('extra')) return 'bg-rose-100 text-rose-800 border-rose-200';
+            return 'bg-slate-100 text-slate-800 border-slate-200';
+        }
+
+        function addSelectedAiItemsToChecklist() {
+            if (!aiTripState.currentPlan || !Array.isArray(aiTripState.currentPlan.packingItems)) {
+                return;
+            }
+
+            const checkboxes = document.querySelectorAll('.ai-item-cb:checked');
+            if (checkboxes.length === 0) {
+                showToast('Please select at least one item to add');
+                return;
+            }
+
+            let addedCount = 0;
+            let duplicateCount = 0;
+
+            checkboxes.forEach(cb => {
+                const idx = parseInt(cb.dataset.index, 10);
+                const itemObj = aiTripState.currentPlan.packingItems[idx];
+                if (!itemObj || !itemObj.item) return;
+
+                // Case-insensitive duplicate check
+                if (isItemAlreadyInChecklist(itemObj.item)) {
+                    duplicateCount++;
+                    return;
+                }
+
+                const catId = mapAiCategoryToId(itemObj.category);
+                let targetCategory = state.categories.find(c => c.id === catId);
+                if (!targetCategory) {
+                    targetCategory = state.categories[0];
+                }
+
+                const newItem = {
+                    id: 'ai_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
+                    text: itemObj.item.trim(),
+                    packed: false,
+                    qty: 1
+                };
+
+                targetCategory.items.push(newItem);
+                addedCount++;
+            });
+
+            if (addedCount > 0) {
+                saveState();
+                updateProgressBar();
+                renderCategories();
+            }
+
+            // Refresh AI packing tab so items now reflect "Already in Checklist"
+            const contentContainer = document.getElementById('ai-tab-content');
+            if (contentContainer && aiTripState.activeTab === 'packing') {
+                contentContainer.innerHTML = renderAiPackingItemsHtml(aiTripState.currentPlan.packingItems);
+                updateAiSelectedCount();
+            }
+
+            if (addedCount > 0 && duplicateCount > 0) {
+                showToast(`Added ${addedCount} item${addedCount > 1 ? 's' : ''} (${duplicateCount} duplicate${duplicateCount > 1 ? 's' : ''} skipped)`);
+            } else if (addedCount > 0) {
+                showToast(`Added ${addedCount} AI packing item${addedCount > 1 ? 's' : ''} to your checklist! ✨`);
+            } else {
+                showToast('All selected items are already in your checklist!');
+            }
+        }
+
+        // ==========================================
+        // 9. Core Checklist UI Rendering & Handlers
+        // ==========================================
         function renderApp() {
             document.getElementById('trip-title-text').textContent = state.tripTitle;
             updateProgressBar();
@@ -488,7 +1541,7 @@
                 statusText.textContent = 'Almost Ready!';
             } else {
                 statusBadge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200';
-                statusIcon.className = 'ph-fill ph-Seal-Check text-sm';
+                statusIcon.className = 'ph-fill ph-seal-check text-sm';
                 statusText.textContent = 'All Packed & Ready for Takeoff! ✈️';
             }
         }
@@ -593,14 +1646,14 @@
                                 <div class="flex items-center gap-1.5 shrink-0">
                                     <div class="inline-flex items-center bg-slate-100/80 rounded-lg border border-slate-200/60 p-0.5">
                                         <button 
-                                            type="button"
+                                            type="button" 
                                             onclick="changeQty('${cat.id}', '${item.id}', -1)" 
                                             class="w-5 h-5 rounded text-slate-500 hover:bg-white hover:text-slate-800 flex items-center justify-center text-xs transition"
                                             title="Decrease quantity"
                                         >-</button>
                                         <span class="px-1.5 text-xs font-semibold text-slate-600 min-w-[1.5rem] text-center">${item.qty || 1}x</span>
                                         <button 
-                                            type="button"
+                                            type="button" 
                                             onclick="changeQty('${cat.id}', '${item.id}', 1)" 
                                             class="w-5 h-5 rounded text-slate-500 hover:bg-white hover:text-slate-800 flex items-center justify-center text-xs transition"
                                             title="Increase quantity"
@@ -608,7 +1661,7 @@
                                     </div>
 
                                     <button 
-                                        type="button"
+                                        type="button" 
                                         onclick="deleteItem('${cat.id}', '${item.id}')" 
                                         class="delete-btn sm:opacity-0 focus:opacity-100 p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
                                         title="Delete item"
@@ -628,7 +1681,7 @@
                             class="flex-1 text-xs bg-white px-3 py-2 rounded-lg border border-slate-200/80 focus:outline-none focus:border-ocean-500 transition"
                             required
                         >
-                        <button type="submit" class="px-2.5 py-2 rounded-lg bg-slate-200/70 hover:bg-ocean-600 hover:text-white text-slate-600 text-xs font-semibold transition flex items-center gap-1">
+                        <button type="submit" class="px-2.5 py-2 rounded-lg bg-slate-200/70 hover:bg-ocean-600 hover:text-white text-slate-600 text-xs font-semibold transition flex items-center gap-1 cursor-pointer">
                             <i class="ph-bold ph-plus"></i>
                             <span>Add</span>
                         </button>
@@ -649,7 +1702,7 @@
             }
         }
 
-        // --- User Interactions ---
+        // --- User Checklist Interactions ---
         function toggleItem(categoryId, itemId) {
             const cat = state.categories.find(c => c.id === categoryId);
             if (!cat) return;
@@ -837,10 +1890,11 @@
             clearTimeout(toastTimeout);
             toastTimeout = setTimeout(() => {
                 toast.classList.add('translate-y-20', 'opacity-0');
-            }, 2600);
+            }, 2800);
         }
 
         function escapeHtml(str) {
+            if (!str) return '';
             const div = document.createElement('div');
             div.textContent = str;
             return div.innerHTML;
