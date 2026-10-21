@@ -1,0 +1,25 @@
+# Cloudflare Workers secrets and local development files
+.dev.vars
+.dev.vars.*
+.wrangler/
+
+# Environment files
+.env
+.env.*
+*.env
+
+# Dependencies & build outputs
+node_modules/
+dist/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.local
