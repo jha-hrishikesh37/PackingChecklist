@@ -115,7 +115,7 @@
                 <div>
                     <span class="text-xs font-semibold uppercase tracking-wider text-ocean-100 bg-white/10 px-2.5 py-0.5 rounded-full border border-white/15">Smart Travel Companion</span>
                     <h1 id="trip-title" class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight mt-1 flex items-center gap-2 cursor-pointer group" onclick="editTripTitle()" title="Click to rename trip">
-                        <span id="trip-title-text">Tropical Getaway Packing List</span>
+                        <span id="trip-title-text">New Trip Checklist</span>
                         <i class="ph ph-pencil-simple text-base opacity-60 group-hover:opacity-100 transition-opacity"></i>
                     </h1>
                 </div>
@@ -126,6 +126,10 @@
                 <button onclick="toggleAiPlanner(true)" class="flex-1 md:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-amber-400 hover:bg-amber-300 text-slate-900 shadow-md shadow-amber-900/15 transition active:scale-95" title="Open AI Trip Planner & Smart Packing Sync">
                     <i class="ph-fill ph-sparkle text-base text-amber-900"></i>
                     <span>AI Trip Planner</span>
+                </button>
+                <button onclick="openAddCategoryModal()" class="flex-1 md:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-white/10 hover:bg-white/20 text-white border border-white/15 backdrop-blur-sm transition active:scale-95" title="Create a custom category">
+                    <i class="ph-bold ph-folder-plus text-base"></i>
+                    <span>Add Category</span>
                 </button>
                 <button onclick="openModal('uncheck-modal')" class="flex-1 md:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-white/10 hover:bg-white/20 text-white border border-white/15 backdrop-blur-sm transition active:scale-95">
                     <i class="ph ph-arrow-counter-clockwise text-base"></i>
@@ -148,7 +152,7 @@
             <div class="p-4 sm:p-5 bg-gradient-to-r from-ocean-50/80 via-slate-50 to-teal-50/50 border-b border-slate-200/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-ocean-600 to-teal-500 text-white flex items-center justify-center shadow-md shadow-ocean-600/20 shrink-0">
-                        <i class="ph-fill ph-sparkle text-xl text-amber-300"></i>
+                    <i class="ph-fill ph-sparkle text-xl text-amber-300"></i>
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
@@ -170,17 +174,17 @@
                         type="button" 
                         onclick="toggleAiPlanner()" 
                         id="ai-toggle-btn"
-                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white hover:bg-slate-100 border border-slate-200 shadow-xs transition"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white hover:bg-slate-100 border border-slate-200 shadow-xs transition cursor-pointer"
                         title="Expand or collapse AI trip planner"
                     >
-                        <span id="ai-toggle-text">Collapse</span>
-                        <i id="ai-toggle-icon" class="ph-bold ph-caret-up text-xs transition-transform duration-200"></i>
+                        <span id="ai-toggle-text">Expand</span>
+                        <i id="ai-toggle-icon" class="ph-bold ph-caret-up text-xs transition-transform duration-200 rotate-180"></i>
                     </button>
                 </div>
             </div>
 
             <!-- Planner Body (Rendered dynamically) -->
-            <div id="ai-planner-body" class="p-5 sm:p-6">
+            <div id="ai-planner-body" class="p-5 sm:p-6 hidden">
                 <!-- Dynamically populated: Form View, Loading View, or Plan & Packing Results -->
             </div>
         </section>
@@ -230,10 +234,19 @@
                         </select>
                         <button 
                             type="submit" 
-                            class="px-4 py-2.5 bg-ocean-600 hover:bg-ocean-700 active:scale-95 text-white font-semibold text-sm rounded-xl shadow-sm shadow-ocean-600/20 transition flex items-center gap-1.5 shrink-0"
+                            class="px-4 py-2.5 bg-ocean-600 hover:bg-ocean-700 active:scale-95 text-white font-semibold text-sm rounded-xl shadow-sm shadow-ocean-600/20 transition flex items-center gap-1.5 shrink-0 cursor-pointer"
                         >
                             <i class="ph-bold ph-plus"></i>
                             <span>Add</span>
+                        </button>
+                        <button 
+                            type="button" 
+                            onclick="openAddCategoryModal()" 
+                            class="px-3 py-2.5 bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 font-semibold text-xs sm:text-sm rounded-xl border border-slate-200 transition flex items-center justify-center gap-1.5 shrink-0 cursor-pointer" 
+                            title="Create a new custom category"
+                        >
+                            <i class="ph-bold ph-folder-plus text-base text-ocean-600"></i>
+                            <span class="hidden sm:inline">+ Category</span>
                         </button>
                     </div>
                 </form>
@@ -336,25 +349,148 @@
         </div>
     </div>
 
+    <!-- Confirmation Modal: Start Fresh -->
+    <div id="start-fresh-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 animate-scale-in">
+            <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-4">
+                <i class="ph-fill ph-warning-circle text-2xl"></i>
+            </div>
+            <h3 class="font-display text-lg font-bold text-slate-900">Start Fresh with AI Checklist?</h3>
+            <p class="text-sm text-slate-500 mt-1">
+                You already have items or checked progress in your checklist. Starting fresh will replace your current categories and items with the AI recommendations.
+            </p>
+            <div class="mt-6 flex items-center justify-end gap-2">
+                <button type="button" onclick="closeModal('start-fresh-modal')" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition cursor-pointer">Cancel</button>
+                <button type="button" onclick="confirmStartFresh()" class="px-4 py-2 rounded-xl text-sm font-semibold bg-ocean-600 hover:bg-ocean-700 text-white shadow-sm transition cursor-pointer">Yes, Replace List</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal: Delete Category -->
+    <div id="delete-category-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 animate-scale-in">
+            <div class="w-11 h-11 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center mb-4">
+                <i class="ph-fill ph-trash text-2xl"></i>
+            </div>
+            <h3 class="font-display text-lg font-bold text-slate-900" id="delete-cat-modal-title">Delete Category?</h3>
+            <p class="text-sm text-slate-500 mt-1" id="delete-cat-modal-desc">
+                This category contains items. Are you sure you want to delete it?
+            </p>
+            <div class="mt-6 flex items-center justify-end gap-2">
+                <button type="button" onclick="closeModal('delete-category-modal')" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition cursor-pointer">Cancel</button>
+                <button type="button" onclick="executeDeleteCategory()" class="px-4 py-2 rounded-xl text-sm font-semibold bg-rose-600 hover:bg-rose-700 text-white shadow-sm transition cursor-pointer">Delete Category</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Add Custom Category -->
+    <div id="add-category-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto animate-scale-in">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-ocean-100 text-ocean-700 flex items-center justify-center">
+                        <i class="ph-bold ph-folder-plus text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-display text-base sm:text-lg font-bold text-slate-900">Create New Category</h3>
+                        <p class="text-xs text-slate-500">Organize items into a custom packing group</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeModal('add-category-modal')" class="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer">
+                    <i class="ph-bold ph-x text-lg"></i>
+                </button>
+            </div>
+
+            <form id="add-category-form" onsubmit="handleCreateCategory(event)" class="space-y-4">
+                <!-- Name Input -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                        Category Name <span class="text-rose-500">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="new-cat-name" 
+                        placeholder="e.g., Camping & Outdoor Gear" 
+                        required 
+                        oninput="updateCategoryPreview()"
+                        class="w-full px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100/70 focus:bg-white rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-ocean-500/30 focus:border-ocean-500 transition font-medium"
+                    >
+                </div>
+
+                <!-- Accent Color Picker -->
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                            Accent Color
+                        </label>
+                        <span class="text-[11px] text-slate-400">Rotates automatically</span>
+                    </div>
+                    <div class="grid grid-cols-6 gap-2" id="accent-picker-container">
+                        <!-- Populated by renderCategoryModalPickers() -->
+                    </div>
+                </div>
+
+                <!-- Icon Picker -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                        Category Icon
+                    </label>
+                    <div class="grid grid-cols-4 gap-2" id="icon-picker-container">
+                        <!-- Populated by renderCategoryModalPickers() -->
+                    </div>
+                </div>
+
+                <!-- Live Preview -->
+                <div>
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+                        Live Preview
+                    </label>
+                    <div class="p-3.5 rounded-xl border border-slate-200/80 bg-slate-50/70 flex items-center justify-between gap-3">
+                        <div class="flex items-center gap-3">
+                            <div id="cat-preview-icon" class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center shrink-0">
+                                <i class="ph-duotone ph-suitcase text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 id="cat-preview-name" class="font-display font-bold text-slate-800 text-sm">Category Name</h4>
+                                <p class="text-xs text-slate-400">0 of 0 packed</p>
+                            </div>
+                        </div>
+                        <span id="cat-preview-badge" class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100/80 text-amber-800">
+                            0%
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="mt-6 pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+                    <button type="button" onclick="closeModal('add-category-modal')" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition cursor-pointer">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-ocean-600 hover:bg-ocean-700 active:scale-95 text-white shadow-sm transition flex items-center gap-1.5 cursor-pointer">
+                        <i class="ph-bold ph-plus"></i>
+                        <span>Create Category</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         // ==========================================
         // 1. Core Data & Constants
         // ==========================================
         const DEFAULT_DATA = {
-            tripTitle: "Tropical Getaway Packing List",
+            tripTitle: "New Trip Checklist",
             categories: [
                 {
                     id: 'essentials',
                     name: 'Essentials & Documents',
-                    icon: 'ph-Identification-badge',
+                    icon: 'ph-identification-badge',
                     accent: 'amber',
                     items: [
-                        { id: 'e1', text: 'Passport / Government ID', packed: false, qty: 1 },
-                        { id: 'e2', text: 'Boarding Passes & Tickets', packed: false, qty: 1 },
-                        { id: 'e3', text: 'Credit Cards & Local Currency', packed: false, qty: 1 },
-                        { id: 'e4', text: 'Travel Insurance Info', packed: false, qty: 1 },
-                        { id: 'e5', text: 'Hotel & Rental Confirmations', packed: false, qty: 1 },
-                        { id: 'e6', text: 'House Keys & Emergency Contacts', packed: false, qty: 1 }
+                        { id: 'e1', text: 'ID / Passport & Tickets', packed: false, qty: 1 },
+                        { id: 'e2', text: 'Wallet, Cards & Cash', packed: false, qty: 1 },
+                        { id: 'e3', text: 'Keys & Emergency Contacts', packed: false, qty: 1 }
                     ]
                 },
                 {
@@ -363,14 +499,9 @@
                     icon: 'ph-t-shirt',
                     accent: 'sky',
                     items: [
-                        { id: 'c1', text: 'T-Shirts & Casual Tops', packed: false, qty: 5 },
-                        { id: 'c2', text: 'Shorts / Breathable Pants', packed: false, qty: 3 },
-                        { id: 'c3', text: 'Underwear & Socks', packed: false, qty: 7 },
-                        { id: 'c4', text: 'Swimwear / Trunks', packed: false, qty: 2 },
-                        { id: 'c5', text: 'Light Jacket or Evening Sweater', packed: false, qty: 1 },
-                        { id: 'c6', text: 'Comfortable Walking Shoes', packed: false, qty: 1 },
-                        { id: 'c7', text: 'Sandals / Flip-Flops', packed: false, qty: 1 },
-                        { id: 'c8', text: 'Sleepwear', packed: false, qty: 2 }
+                        { id: 'c1', text: 'Casual Tops / T-Shirts', packed: false, qty: 3 },
+                        { id: 'c2', text: 'Underwear & Socks', packed: false, qty: 3 },
+                        { id: 'c3', text: 'Comfortable Shoes', packed: false, qty: 1 }
                     ]
                 },
                 {
@@ -379,41 +510,18 @@
                     icon: 'ph-first-aid-kit',
                     accent: 'emerald',
                     items: [
-                        { id: 't1', text: 'Toothbrush, Toothpaste & Floss', packed: false, qty: 1 },
-                        { id: 't2', text: 'Reef-Safe Sunscreen (SPF 30+)', packed: false, qty: 1 },
-                        { id: 't3', text: 'Deodorant & Perfume', packed: false, qty: 1 },
-                        { id: 't4', text: 'Shampoo & Body Wash (Travel Size)', packed: false, qty: 1 },
-                        { id: 't5', text: 'Personal Medications & Pain Relievers', packed: false, qty: 1 },
-                        { id: 't6', text: 'Band-Aids & Hand Sanitizer', packed: false, qty: 1 },
-                        { id: 't7', text: 'Lip Balm & After-Sun Lotion', packed: false, qty: 1 }
+                        { id: 't1', text: 'Toothbrush & Toothpaste', packed: false, qty: 1 },
+                        { id: 't2', text: 'Deodorant & Grooming Basics', packed: false, qty: 1 }
                     ]
                 },
                 {
                     id: 'electronics',
-                    name: 'Electronics & Gear',
+                    name: 'Tech & Gear',
                     icon: 'ph-device-mobile-camera',
                     accent: 'violet',
                     items: [
-                        { id: 'el1', text: 'Smartphone & Charging Cable', packed: false, qty: 1 },
-                        { id: 'el2', text: 'Portable Power Bank', packed: false, qty: 1 },
-                        { id: 'el3', text: 'Noise-Canceling Headphones', packed: false, qty: 1 },
-                        { id: 'el4', text: 'Universal Travel Adapter', packed: false, qty: 1 },
-                        { id: 'el5', text: 'E-Reader or Tablet', packed: false, qty: 1 },
-                        { id: 'el6', text: 'Camera & Extra SD Card', packed: false, qty: 1 }
-                    ]
-                },
-                {
-                    id: 'extras',
-                    name: 'Beach & Comfort Extras',
-                    icon: 'ph-sunglasses',
-                    accent: 'rose',
-                    items: [
-                        { id: 'ex1', text: 'Polarized Sunglasses & Sun Hat', packed: false, qty: 1 },
-                        { id: 'ex2', text: 'Reusable Water Bottle', packed: false, qty: 1 },
-                        { id: 'ex3', text: 'Foldable Daypack / Beach Tote', packed: false, qty: 1 },
-                        { id: 'ex4', text: 'Travel Pillow & Eye Mask', packed: false, qty: 1 },
-                        { id: 'ex5', text: 'Waterproof Phone Pouch', packed: false, qty: 1 },
-                        { id: 'ex6', text: 'Laundry Bag for Dirty Clothes', packed: false, qty: 1 }
+                        { id: 'el1', text: 'Phone & Charging Cable', packed: false, qty: 1 },
+                        { id: 'el2', text: 'Power Bank & Earphones', packed: false, qty: 1 }
                     ]
                 }
             ]
@@ -425,37 +533,208 @@
                 text: 'text-amber-600',
                 border: 'border-amber-200',
                 badge: 'bg-amber-100/80 text-amber-800',
-                bar: 'bg-amber-500'
+                bar: 'bg-amber-500',
+                ring: 'ring-amber-500'
             },
             sky: {
                 bg: 'bg-sky-50',
                 text: 'text-sky-600',
                 border: 'border-sky-200',
                 badge: 'bg-sky-100/80 text-sky-800',
-                bar: 'bg-sky-500'
+                bar: 'bg-sky-500',
+                ring: 'ring-sky-500'
             },
             emerald: {
                 bg: 'bg-emerald-50',
                 text: 'text-emerald-600',
                 border: 'border-emerald-200',
                 badge: 'bg-emerald-100/80 text-emerald-800',
-                bar: 'bg-emerald-500'
+                bar: 'bg-emerald-500',
+                ring: 'ring-emerald-500'
             },
             violet: {
                 bg: 'bg-violet-50',
                 text: 'text-violet-600',
                 border: 'border-violet-200',
                 badge: 'bg-violet-100/80 text-violet-800',
-                bar: 'bg-violet-500'
+                bar: 'bg-violet-500',
+                ring: 'ring-violet-500'
             },
             rose: {
                 bg: 'bg-rose-50',
                 text: 'text-rose-600',
                 border: 'border-rose-200',
                 badge: 'bg-rose-100/80 text-rose-800',
-                bar: 'bg-rose-500'
+                bar: 'bg-rose-500',
+                ring: 'ring-rose-500'
+            },
+            indigo: {
+                bg: 'bg-indigo-50',
+                text: 'text-indigo-600',
+                border: 'border-indigo-200',
+                badge: 'bg-indigo-100/80 text-indigo-800',
+                bar: 'bg-indigo-500',
+                ring: 'ring-indigo-500'
             }
         };
+        const PRESET_ACCENTS = ['amber', 'sky', 'emerald', 'violet', 'rose', 'indigo'];
+        const PALETTE_COLORS = PRESET_ACCENTS;
+
+        const PRESET_ICONS = [
+            { icon: 'ph-suitcase', label: 'Luggage' },
+            { icon: 'ph-t-shirt', label: 'Clothing' },
+            { icon: 'ph-first-aid-kit', label: 'Health' },
+            { icon: 'ph-device-mobile-camera', label: 'Tech' },
+            { icon: 'ph-sunglasses', label: 'Beach' },
+            { icon: 'ph-sneaker', label: 'Shoes' },
+            { icon: 'ph-briefcase', label: 'Business' },
+            { icon: 'ph-tent', label: 'Outdoors' }
+        ];
+
+        function getAccentStyle(accent) {
+            if (accent && typeof accent === 'string') {
+                const key = accent.toLowerCase().trim();
+                if (ACCENT_STYLES[key]) return ACCENT_STYLES[key];
+            }
+            return ACCENT_STYLES.amber;
+        }
+
+        function getValidIcon(icon) {
+            if (!icon || typeof icon !== 'string') return 'ph-suitcase';
+            const clean = icon.toLowerCase().trim();
+            if (clean === 'ph-identification-badge') return 'ph-identification-badge';
+            if (clean.startsWith('ph-')) return clean;
+            return `ph-${clean}`;
+        }
+
+        // ==========================================
+        // Fuzzy Matching & Canonical Token Logic
+        // ==========================================
+        const SYNONYMS = {
+            smartphone: 'phone',
+            mobile: 'phone',
+            cellphone: 'phone',
+            cable: 'charger',
+            cord: 'charger',
+            adapter: 'charger',
+            medications: 'meds',
+            medicine: 'meds',
+            pills: 'meds',
+            paste: 'toothpaste',
+            footwear: 'shoes',
+            sneakers: 'shoes',
+            trunks: 'swimwear',
+            swimsuit: 'swimwear',
+            headphones: 'earphones',
+            earbuds: 'earphones',
+            id: 'passport',
+            government: 'passport',
+            tops: 'shirt',
+            tshirts: 'shirt',
+            tshirt: 'shirt'
+        };
+
+        const STOP_WORDS = new Set([
+            'and', 'or', 'for', 'with', 'the', 'a', 'an', 'travel',
+            'size', 'pack', 'of', 'extra', 'basic', 'light', 'comfortable',
+            'casual', 'personal', 'portable', 'reusable'
+        ]);
+
+        function singularize(word) {
+            if (!word || word.length <= 3) return word;
+            if (word.endsWith('ies')) {
+                return word.slice(0, -3) + 'y';
+            }
+            if (word.endsWith('es')) {
+                return word.slice(0, -2);
+            }
+            if (word.endsWith('s') && !word.endsWith('ss')) {
+                return word.slice(0, -1);
+            }
+            return word;
+        }
+
+        function getCanonicalTokens(text) {
+            if (!text || typeof text !== 'string') return new Set();
+
+            // 1. Lowercase string and replace punctuation (/, &, -, ,, (, )) with spaces
+            const cleaned = text.toLowerCase().replace(/[\/&\-,()]/g, ' ');
+            const rawTokens = cleaned.trim().split(/\s+/).filter(Boolean);
+            const result = new Set();
+
+            for (const raw of rawTokens) {
+                // 2. Apply synonym normalization dictionary before filtering
+                let word = SYNONYMS[raw] || raw;
+
+                // 3. Filter out stop/filler words
+                if (STOP_WORDS.has(word)) continue;
+
+                // 4. Basic singularization
+                word = singularize(word);
+
+                // Re-check synonyms and stop words after singularizing
+                if (SYNONYMS[word]) word = SYNONYMS[word];
+                if (STOP_WORDS.has(word)) continue;
+
+                if (word.length > 0) {
+                    result.add(word);
+                }
+            }
+
+            return result;
+        }
+
+        const HIGH_ANCHORS = [
+            'passport', 'toothbrush', 'deodorant', 'sunscreen',
+            'powerbank', 'swimwear', 'underwear', 'sunglasses',
+            'jacket', 'sandal'
+        ];
+
+        function areItemsSimilar(existingText, newText) {
+            if (!existingText || !newText) return false;
+            const setA = getCanonicalTokens(existingText);
+            const setB = getCanonicalTokens(newText);
+
+            if (setA.size === 0 || setB.size === 0) {
+                const normA = existingText.toLowerCase().replace(/[^a-z0-9]/g, '');
+                const normB = newText.toLowerCase().replace(/[^a-z0-9]/g, '');
+                return normA.length > 0 && normA === normB;
+            }
+
+            let intersectionSize = 0;
+            let sharesHighAnchor = false;
+
+            for (const token of setA) {
+                if (setB.has(token)) {
+                    intersectionSize++;
+                    if (HIGH_ANCHORS.includes(token)) {
+                        sharesHighAnchor = true;
+                    }
+                }
+            }
+
+            if (!sharesHighAnchor) {
+                for (const anchor of HIGH_ANCHORS) {
+                    const inA = setA.has(anchor) || 
+                                (anchor === 'powerbank' && setA.has('power') && setA.has('bank')) ||
+                                (anchor === 'sunglasses' && (setA.has('sunglass') || setA.has('sunglasses'))) ||
+                                (anchor === 'swimwear' && (setA.has('swimwear') || setA.has('swim')));
+                    const inB = setB.has(anchor) || 
+                                (anchor === 'powerbank' && setB.has('power') && setB.has('bank')) ||
+                                (anchor === 'sunglasses' && (setB.has('sunglass') || setB.has('sunglasses'))) ||
+                                (anchor === 'swimwear' && (setB.has('swimwear') || setB.has('swim')));
+                    if (inA && inB) {
+                        sharesHighAnchor = true;
+                        break;
+                    }
+                }
+            }
+
+            const minSize = Math.min(setA.size, setB.size);
+            const overlap = minSize > 0 ? (intersectionSize / minSize) : 0;
+
+            return overlap >= 0.6 || sharesHighAnchor;
+        }
 
         const STORAGE_KEY = 'wanderlust_packing_checklist_v1';
         const STORAGE_KEY_AI = 'wanderlust_ai_trip_plan_v1';
@@ -508,6 +787,60 @@
                     weatherTip: "Scattered spring showers possible in the afternoon (~16°C); carry a compact travel umbrella."
                 }
             ],
+            categories: [
+                {
+                    id: 'essentials',
+                    name: 'Essentials & Documents',
+                    icon: 'ph-identification-badge',
+                    accent: 'amber',
+                    items: [
+                        { id: 's_e1', text: 'Passport with 6+ Months Validity', packed: false, qty: 1 },
+                        { id: 's_e2', text: 'ICOCA / Suica Transit IC Card', packed: false, qty: 1 }
+                    ]
+                },
+                {
+                    id: 'clothing',
+                    name: 'Clothing & Footwear',
+                    icon: 'ph-t-shirt',
+                    accent: 'sky',
+                    items: [
+                        { id: 's_c1', text: 'Casual Tops / T-Shirts', packed: false, qty: 4 },
+                        { id: 's_c2', text: 'Comfortable Slip-on Walking Shoes', packed: false, qty: 1 },
+                        { id: 's_c3', text: 'Lightweight Layering Cardigan', packed: false, qty: 1 }
+                    ]
+                },
+                {
+                    id: 'toiletries',
+                    name: 'Toiletries & Health',
+                    icon: 'ph-first-aid-kit',
+                    accent: 'emerald',
+                    items: [
+                        { id: 's_t1', text: 'Toothbrush & Toothpaste', packed: false, qty: 1 },
+                        { id: 's_t2', text: 'Blister Prevention Band-Aids', packed: false, qty: 1 },
+                        { id: 's_t3', text: 'Hydrating Lip Balm & Hand Lotion', packed: false, qty: 1 }
+                    ]
+                },
+                {
+                    id: 'electronics',
+                    name: 'Tech & Gear',
+                    icon: 'ph-device-mobile-camera',
+                    accent: 'violet',
+                    items: [
+                        { id: 's_el1', text: 'High-Capacity Portable Power Bank', packed: false, qty: 1 },
+                        { id: 's_el2', text: 'Universal Travel Plug Adapter (Type A)', packed: false, qty: 1 }
+                    ]
+                },
+                {
+                    id: 'extras',
+                    name: 'Travel Gear & Extras',
+                    icon: 'ph-suitcase',
+                    accent: 'rose',
+                    items: [
+                        { id: 's_ex1', text: 'Compact Wind-Resistant Umbrella', packed: false, qty: 1 },
+                        { id: 's_ex2', text: 'Compact Coin Pouch', packed: false, qty: 1 }
+                    ]
+                }
+            ],
             packingItems: [
                 { item: "Comfortable Slip-on Walking Shoes", category: "Clothing", reason: "Japanese shrines and traditional ryokans require frequent shoe removal; Kyoto involves 15,000+ daily steps." },
                 { item: "Lightweight Layering Cardigan", category: "Clothing", reason: "April temperatures fluctuate notably between sunny afternoons and brisk spring evenings." },
@@ -533,7 +866,8 @@
         };
 
         let aiTripState = {
-            isExpanded: true,
+            isExpanded: false, // Collapsed by default on initial page load
+            syncMode: 'merge', // 'merge' | 'fresh'
             activeTab: 'itinerary', // 'itinerary' | 'packing'
             currentPlan: null,
             isLoading: false,
@@ -548,6 +882,10 @@
         };
 
         let aiLoadingInterval = null;
+        let pendingFreshPlan = null;
+        let categoryToDeleteId = null;
+        let selectedCategoryAccent = 'amber';
+        let selectedCategoryIcon = 'ph-suitcase';
 
         // ==========================================
         // 3. Initialization
@@ -578,8 +916,19 @@
                 const saved = localStorage.getItem(STORAGE_KEY);
                 if (saved) {
                     const parsed = JSON.parse(saved);
-                    state.tripTitle = parsed.tripTitle || DEFAULT_DATA.tripTitle;
-                    state.categories = parsed.categories || JSON.parse(JSON.stringify(DEFAULT_DATA.categories));
+                    // Check if previous state was the legacy default with no progress
+                    const isLegacyDefault = parsed.tripTitle === "Tropical Getaway Packing List" &&
+                        Array.isArray(parsed.categories) &&
+                        !parsed.categories.some(c => c.items.some(i => i.packed));
+
+                    if (isLegacyDefault) {
+                        state.tripTitle = DEFAULT_DATA.tripTitle;
+                        state.categories = JSON.parse(JSON.stringify(DEFAULT_DATA.categories));
+                        saveState();
+                    } else {
+                        state.tripTitle = parsed.tripTitle || DEFAULT_DATA.tripTitle;
+                        state.categories = parsed.categories || JSON.parse(JSON.stringify(DEFAULT_DATA.categories));
+                    }
                 } else {
                     state.categories = JSON.parse(JSON.stringify(DEFAULT_DATA.categories));
                 }
@@ -728,8 +1077,23 @@
             aiTripState.isLoading = false;
             aiTripState.activeTab = 'itinerary';
             saveAiPlan(aiTripState.currentPlan);
+
+            const incomingCategories = extractCategoriesFromAiData(SAMPLE_AI_PLAN);
+            const demoTitle = "Kyoto Cherry Blossom Adventure";
+
+            if (aiTripState.syncMode === 'fresh') {
+                handleStartFreshRequest(incomingCategories, demoTitle);
+            } else {
+                const stats = smartMergeChecklist(incomingCategories);
+                if (state.tripTitle === DEFAULT_DATA.tripTitle) {
+                    state.tripTitle = demoTitle;
+                    document.getElementById('trip-title-text').textContent = state.tripTitle;
+                    saveState();
+                }
+                showToast(`Smart Merged Kyoto plan: ${stats.newItemsCount} added, ${stats.mergedCount} matched! ✨`);
+            }
+
             renderAiPlanner();
-            showToast('Loaded sample Kyoto trip plan! ✨');
         }
 
         // ==========================================
@@ -816,7 +1180,9 @@
                     throw new Error(errorMsg);
                 }
 
-                if (!data || !data.tripSummary || !Array.isArray(data.itinerary) || !Array.isArray(data.packingItems)) {
+                const hasPackingItems = Array.isArray(data && data.packingItems);
+                const hasCategories = Array.isArray(data && data.categories);
+                if (!data || (!hasPackingItems && !hasCategories)) {
                     throw new Error('The AI service returned an incomplete response format. Please try again.');
                 }
 
@@ -826,9 +1192,10 @@
                     days,
                     month,
                     activities,
-                    tripSummary: data.tripSummary,
-                    itinerary: data.itinerary,
-                    packingItems: data.packingItems,
+                    tripSummary: data.tripSummary || `Tailored travel itinerary & packing checklist for ${destination}.`,
+                    itinerary: Array.isArray(data.itinerary) ? data.itinerary : [],
+                    packingItems: hasPackingItems ? data.packingItems : [],
+                    categories: hasCategories ? data.categories : [],
                     createdAt: new Date().toISOString()
                 };
 
@@ -839,15 +1206,22 @@
                 stopLoadingSteps();
                 saveAiPlan(newPlan);
 
-                // If default trip title is still set, suggestively update to match destination
-                if (state.tripTitle === DEFAULT_DATA.tripTitle) {
-                    state.tripTitle = `${destination} Adventure Packing List`;
-                    saveState();
-                    document.getElementById('trip-title-text').textContent = state.tripTitle;
+                const incomingCategories = extractCategoriesFromAiData(data);
+                const suggestedTitle = data.tripTitle || `${destination} Packing Checklist`;
+
+                if (aiTripState.syncMode === 'fresh') {
+                    handleStartFreshRequest(incomingCategories, suggestedTitle);
+                } else {
+                    const stats = smartMergeChecklist(incomingCategories);
+                    if (state.tripTitle === DEFAULT_DATA.tripTitle && destination) {
+                        state.tripTitle = suggestedTitle;
+                        document.getElementById('trip-title-text').textContent = state.tripTitle;
+                        saveState();
+                    }
+                    showToast(`Smart Merged AI items: ${stats.newItemsCount} added, ${stats.mergedCount} matched! ✨`);
                 }
 
                 renderAiPlanner();
-                showToast(`Generated trip plan for ${destination}! ✨`);
 
             } catch (err) {
                 stopLoadingSteps();
@@ -1076,6 +1450,40 @@
                         </div>
                     </div>
 
+                    <!-- Sync Mode Segmented Toggle -->
+                    <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="space-y-0.5">
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                                Checklist Sync Mode
+                            </label>
+                            <p class="text-xs text-slate-500" id="sync-mode-desc">
+                                ${aiTripState.syncMode === 'fresh' 
+                                    ? 'Replaces current checklist with AI recommendations (asks confirmation if items exist).'
+                                    : 'Merges AI suggestions into your list, upgrades quantities & prevents duplicates.'}
+                            </p>
+                        </div>
+                        <div class="inline-flex p-1 rounded-xl bg-slate-200/70 border border-slate-200 shrink-0 self-start sm:self-auto" role="radiogroup">
+                            <button 
+                                type="button" 
+                                onclick="setAiSyncMode('merge')" 
+                                id="sync-mode-merge-btn"
+                                class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${aiTripState.syncMode !== 'fresh' ? 'bg-white text-ocean-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'}"
+                            >
+                                <i class="ph-bold ph-arrows-merge"></i>
+                                <span>Smart Merge</span>
+                            </button>
+                            <button 
+                                type="button" 
+                                onclick="setAiSyncMode('fresh')" 
+                                id="sync-mode-fresh-btn"
+                                class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${aiTripState.syncMode === 'fresh' ? 'bg-white text-ocean-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'}"
+                            >
+                                <i class="ph-bold ph-sparkle"></i>
+                                <span>Start Fresh</span>
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- Action Bar -->
                     <div class="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
                         <div class="flex items-center gap-2">
@@ -1085,12 +1493,12 @@
                                 class="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-ocean-600 via-teal-600 to-emerald-600 hover:from-ocean-700 hover:to-emerald-700 active:scale-95 text-white font-semibold text-sm rounded-xl shadow-md shadow-ocean-600/20 transition flex items-center justify-center gap-2 cursor-pointer"
                             >
                                 <i class="ph-bold ph-sparkle text-amber-300 text-base"></i>
-                                <span>Generate Plan & Packing List</span>
+                                <span id="ai-generate-btn-text">${aiTripState.syncMode === 'fresh' ? 'Generate & Start Fresh' : 'Generate & Smart Merge'}</span>
                             </button>
                             <button 
                                 type="button" 
                                 onclick="loadSamplePlan()" 
-                                class="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2.5 text-xs font-semibold text-slate-600 hover:text-ocean-700 bg-slate-100 hover:bg-ocean-50 rounded-xl border border-slate-200 transition"
+                                class="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2.5 text-xs font-semibold text-slate-600 hover:text-ocean-700 bg-slate-100 hover:bg-ocean-50 rounded-xl border border-slate-200 transition cursor-pointer"
                                 title="Try an instant demonstration plan (Kyoto 3-Day Trip)"
                             >
                                 <i class="ph-bold ph-lightning text-amber-500"></i>
@@ -1388,11 +1796,11 @@
         // ==========================================
         // 8. Smart Checklist Sync & Duplicate Check
         // ==========================================
+
         function isItemAlreadyInChecklist(itemName) {
             if (!itemName) return false;
-            const normalized = itemName.trim().toLowerCase();
             return state.categories.some(cat => 
-                cat.items.some(item => item.text.trim().toLowerCase() === normalized)
+                cat.items.some(item => areItemsSimilar(item.text, itemName))
             );
         }
 
@@ -1406,8 +1814,8 @@
             if (c.includes('doc') || c.includes('essent') || c.includes('pass') || c.includes('ticket')) return 'essentials';
             if (c.includes('gear') || c.includes('extra') || c.includes('beach') || c.includes('bag')) return 'extras';
             
-            // Check existing category IDs
-            const match = state.categories.find(cat => cat.id === c || cat.name.toLowerCase().includes(c));
+            // Check existing category IDs or fuzzy name
+            const match = state.categories.find(cat => cat.id === c || areItemsSimilar(cat.name, c));
             if (match) return match.id;
             return 'extras';
         }
@@ -1435,37 +1843,46 @@
             }
 
             let addedCount = 0;
-            let duplicateCount = 0;
+            let upgradedCount = 0;
 
             checkboxes.forEach(cb => {
                 const idx = parseInt(cb.dataset.index, 10);
                 const itemObj = aiTripState.currentPlan.packingItems[idx];
                 if (!itemObj || !itemObj.item) return;
 
-                // Case-insensitive duplicate check
-                if (isItemAlreadyInChecklist(itemObj.item)) {
-                    duplicateCount++;
-                    return;
+                const incomingText = itemObj.item.trim();
+                const incomingQty = itemObj.qty || 1;
+
+                // Check if existing item in any category is similar
+                let existingMatch = null;
+                for (const cat of state.categories) {
+                    existingMatch = cat.items.find(item => areItemsSimilar(item.text, incomingText));
+                    if (existingMatch) break;
                 }
 
-                const catId = mapAiCategoryToId(itemObj.category);
-                let targetCategory = state.categories.find(c => c.id === catId);
-                if (!targetCategory) {
-                    targetCategory = state.categories[0];
+                if (existingMatch) {
+                    existingMatch.qty = Math.max(existingMatch.qty || 1, incomingQty);
+                    upgradedCount++;
+                } else {
+                    const catId = mapAiCategoryToId(itemObj.category);
+                    let targetCategory = state.categories.find(c => c.id === catId);
+                    if (!targetCategory) {
+                        targetCategory = state.categories[0];
+                    }
+
+                    if (targetCategory) {
+                        targetCategory.items.push({
+                            id: 'ai_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
+                            text: incomingText,
+                            packed: false,
+                            qty: incomingQty
+                        });
+                        addedCount++;
+                    }
                 }
-
-                const newItem = {
-                    id: 'ai_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
-                    text: itemObj.item.trim(),
-                    packed: false,
-                    qty: 1
-                };
-
-                targetCategory.items.push(newItem);
-                addedCount++;
             });
 
-            if (addedCount > 0) {
+            if (addedCount > 0 || upgradedCount > 0) {
                 saveState();
                 updateProgressBar();
                 renderCategories();
@@ -1478,17 +1895,403 @@
                 updateAiSelectedCount();
             }
 
-            if (addedCount > 0 && duplicateCount > 0) {
-                showToast(`Added ${addedCount} item${addedCount > 1 ? 's' : ''} (${duplicateCount} duplicate${duplicateCount > 1 ? 's' : ''} skipped)`);
+            if (addedCount > 0 && upgradedCount > 0) {
+                showToast(`Added ${addedCount} item${addedCount > 1 ? 's' : ''} (${upgradedCount} existing updated)`);
             } else if (addedCount > 0) {
                 showToast(`Added ${addedCount} AI packing item${addedCount > 1 ? 's' : ''} to your checklist! ✨`);
+            } else if (upgradedCount > 0) {
+                showToast(`Updated quantity for ${upgradedCount} already packed item${upgradedCount > 1 ? 's' : ''}! ✨`);
             } else {
                 showToast('All selected items are already in your checklist!');
             }
         }
 
+        // --- Category Extraction from AI response ---
+        function extractCategoriesFromAiData(data) {
+            if (!data) return [];
+
+            if (Array.isArray(data.categories) && data.categories.length > 0) {
+                return data.categories.map((cat, idx) => ({
+                    id: cat.id || ('ai_cat_' + idx),
+                    name: cat.name || 'General',
+                    icon: getValidIcon(cat.icon),
+                    accent: (cat.accent && ACCENT_STYLES[cat.accent]) ? cat.accent : PRESET_ACCENTS[idx % PRESET_ACCENTS.length],
+                    items: (cat.items || []).map(item => ({
+                        id: (typeof item === 'object' && item.id) ? item.id : ('item_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6)),
+                        text: (typeof item === 'string' ? item : item.text || '').trim(),
+                        packed: false,
+                        qty: (typeof item === 'object' && item.qty) ? item.qty : 1
+                    }))
+                }));
+            }
+
+            if (Array.isArray(data.packingItems) && data.packingItems.length > 0) {
+                const groups = {};
+                data.packingItems.forEach(pi => {
+                    const catName = pi.category || 'General Essentials';
+                    if (!groups[catName]) {
+                        const targetId = mapAiCategoryToId(catName);
+                        const existing = state.categories.find(c => c.id === targetId);
+                        groups[catName] = {
+                            id: targetId,
+                            name: existing ? existing.name : catName,
+                            icon: existing ? existing.icon : 'ph-suitcase',
+                            accent: existing ? existing.accent : PRESET_ACCENTS[Object.keys(groups).length % PRESET_ACCENTS.length],
+                            items: []
+                        };
+                    }
+                    groups[catName].items.push({
+                        id: 'ai_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+                        text: (pi.item || '').trim(),
+                        packed: false,
+                        qty: pi.qty || 1
+                    });
+                });
+                return Object.values(groups);
+            }
+
+            return [];
+        }
+
+        // --- Smart Merge Implementation ---
+        function smartMergeChecklist(incomingCategories) {
+            let mergedCount = 0;
+            let newItemsCount = 0;
+            let newCatsCount = 0;
+
+            incomingCategories.forEach((aiCat, index) => {
+                // 1. Match category by id or fuzzy name
+                let targetCategory = state.categories.find(existingCat => 
+                    existingCat.id === aiCat.id ||
+                    existingCat.name.toLowerCase() === aiCat.name.toLowerCase() ||
+                    areItemsSimilar(existingCat.name, aiCat.name)
+                );
+
+                if (!targetCategory) {
+                    const accent = (aiCat.accent && ACCENT_STYLES[aiCat.accent]) 
+                        ? aiCat.accent 
+                        : PRESET_ACCENTS[(state.categories.length + index) % PRESET_ACCENTS.length];
+                    const icon = getValidIcon(aiCat.icon);
+                    targetCategory = {
+                        id: aiCat.id || ('cat_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6)),
+                        name: aiCat.name || 'Additional Items',
+                        icon: icon,
+                        accent: accent,
+                        items: []
+                    };
+                    state.categories.push(targetCategory);
+                    newCatsCount++;
+                }
+
+                // 2. Merge items
+                (aiCat.items || []).forEach(aiItem => {
+                    const aiItemText = (typeof aiItem === 'string' ? aiItem : aiItem.text || '').trim();
+                    if (!aiItemText) return;
+                    const aiItemQty = (typeof aiItem === 'object' && aiItem.qty) ? aiItem.qty : 1;
+
+                    // Check if any existing item in this category (or across the whole list) returns true for areItemsSimilar
+                    let existingMatch = targetCategory.items.find(item => areItemsSimilar(item.text, aiItemText));
+
+                    if (!existingMatch) {
+                        for (const cat of state.categories) {
+                            existingMatch = cat.items.find(item => areItemsSimilar(item.text, aiItemText));
+                            if (existingMatch) break;
+                        }
+                    }
+
+                    if (existingMatch) {
+                        // Keep existing item's id, text, and packed status, and update qty = Math.max(existing.qty, aiItem.qty || 1)
+                        existingMatch.qty = Math.max(existingMatch.qty || 1, aiItemQty);
+                        mergedCount++;
+                    } else {
+                        // Append new AI item with packed: false
+                        targetCategory.items.push({
+                            id: (typeof aiItem === 'object' && aiItem.id) ? aiItem.id : ('ai_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6)),
+                            text: aiItemText,
+                            packed: false,
+                            qty: aiItemQty
+                        });
+                        newItemsCount++;
+                    }
+                });
+            });
+
+            saveState();
+            updateProgressBar();
+            renderCategories();
+            populateCategorySelect();
+
+            return { mergedCount, newItemsCount, newCatsCount };
+        }
+
+        // --- Start Fresh Flow & Confirmation ---
+        function userHasCheckedOrCustomItems() {
+            let hasPacked = false;
+            let totalItems = 0;
+            state.categories.forEach(cat => {
+                cat.items.forEach(item => {
+                    totalItems++;
+                    if (item.packed) hasPacked = true;
+                });
+            });
+            if (hasPacked) return true;
+
+            // Check if categories differ from DEFAULT_DATA
+            if (state.categories.length !== DEFAULT_DATA.categories.length) return true;
+            const defaultCatIds = new Set(DEFAULT_DATA.categories.map(c => c.id));
+            const allMatchDefault = state.categories.every(c => defaultCatIds.has(c.id));
+            if (!allMatchDefault) return true;
+
+            const defaultTotalItems = DEFAULT_DATA.categories.reduce((acc, c) => acc + c.items.length, 0);
+            if (totalItems !== defaultTotalItems) return true;
+
+            return false;
+        }
+
+        function handleStartFreshRequest(incomingCategories, newTitle) {
+            pendingFreshPlan = {
+                categories: incomingCategories,
+                title: newTitle
+            };
+
+            if (userHasCheckedOrCustomItems()) {
+                openModal('start-fresh-modal');
+            } else {
+                confirmStartFresh();
+            }
+        }
+
+        function confirmStartFresh() {
+            if (!pendingFreshPlan) {
+                closeModal('start-fresh-modal');
+                return;
+            }
+
+            applyStartFresh(pendingFreshPlan.categories, pendingFreshPlan.title);
+            pendingFreshPlan = null;
+            closeModal('start-fresh-modal');
+        }
+
+        function applyStartFresh(incomingCategories, newTitle) {
+            if (newTitle) {
+                state.tripTitle = newTitle;
+                const titleEl = document.getElementById('trip-title-text');
+                if (titleEl) titleEl.textContent = newTitle;
+            }
+
+            state.categories = incomingCategories.map((cat, idx) => ({
+                id: cat.id || ('cat_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6)),
+                name: cat.name || 'General',
+                icon: getValidIcon(cat.icon),
+                accent: (cat.accent && ACCENT_STYLES[cat.accent]) ? cat.accent : PRESET_ACCENTS[idx % PRESET_ACCENTS.length],
+                items: (cat.items || []).map(item => ({
+                    id: item.id || ('item_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6)),
+                    text: (typeof item === 'string' ? item : item.text || '').trim(),
+                    packed: false,
+                    qty: (typeof item === 'object' && item.qty) ? item.qty : 1
+                }))
+            }));
+
+            saveState();
+            resetFilters();
+            renderApp();
+            populateCategorySelect();
+            showToast(`Started fresh with ${state.categories.length} categories! ✨`);
+        }
+
+        function setAiSyncMode(mode) {
+            aiTripState.syncMode = mode === 'fresh' ? 'fresh' : 'merge';
+            const desc = document.getElementById('sync-mode-desc');
+            const mergeBtn = document.getElementById('sync-mode-merge-btn');
+            const freshBtn = document.getElementById('sync-mode-fresh-btn');
+            const genBtnText = document.getElementById('ai-generate-btn-text');
+
+            if (desc) {
+                desc.textContent = aiTripState.syncMode === 'fresh'
+                    ? 'Replaces current checklist with AI recommendations (asks confirmation if items exist).'
+                    : 'Merges AI suggestions into your list, upgrades quantities & prevents duplicates.';
+            }
+
+            if (mergeBtn && freshBtn) {
+                if (aiTripState.syncMode === 'merge') {
+                    mergeBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer bg-white text-ocean-700 shadow-sm';
+                    freshBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer text-slate-600 hover:text-slate-900';
+                } else {
+                    freshBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer bg-white text-ocean-700 shadow-sm';
+                    mergeBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer text-slate-600 hover:text-slate-900';
+                }
+            }
+
+            if (genBtnText) {
+                genBtnText.textContent = aiTripState.syncMode === 'fresh' ? 'Generate & Start Fresh' : 'Generate & Smart Merge';
+            }
+        }
+
         // ==========================================
-        // 9. Core Checklist UI Rendering & Handlers
+        // 9. Manual Category Creation & Deletion UI
+        // ==========================================
+        function openAddCategoryModal() {
+            const nextAccentIndex = state.categories.length % PRESET_ACCENTS.length;
+            selectedCategoryAccent = PRESET_ACCENTS[nextAccentIndex];
+            selectedCategoryIcon = 'ph-suitcase';
+
+            const nameInput = document.getElementById('new-cat-name');
+            if (nameInput) nameInput.value = '';
+
+            renderCategoryModalPickers();
+            updateCategoryPreview();
+            openModal('add-category-modal');
+            setTimeout(() => {
+                if (nameInput) nameInput.focus();
+            }, 60);
+        }
+
+        function selectCategoryAccent(accent) {
+            if (!ACCENT_STYLES[accent]) return;
+            selectedCategoryAccent = accent;
+            renderCategoryModalPickers();
+            updateCategoryPreview();
+        }
+
+        function selectCategoryIcon(icon) {
+            selectedCategoryIcon = getValidIcon(icon);
+            renderCategoryModalPickers();
+            updateCategoryPreview();
+        }
+
+        function renderCategoryModalPickers() {
+            const accentContainer = document.getElementById('accent-picker-container');
+            if (accentContainer) {
+                accentContainer.innerHTML = PRESET_ACCENTS.map(accent => {
+                    const isSelected = accent === selectedCategoryAccent;
+                    const style = ACCENT_STYLES[accent];
+                    return `
+                        <button 
+                            type="button" 
+                            onclick="selectCategoryAccent('${accent}')" 
+                            class="h-9 rounded-xl flex items-center justify-center transition-all cursor-pointer ${style.bg} border ${isSelected ? 'border-slate-800 ring-2 ring-slate-800 ring-offset-1 scale-105' : 'border-slate-200 hover:scale-105'}"
+                            title="${accent.charAt(0).toUpperCase() + accent.slice(1)}"
+                        >
+                            <span class="w-3.5 h-3.5 rounded-full ${style.bar}"></span>
+                        </button>
+                    `;
+                }).join('');
+            }
+
+            const iconContainer = document.getElementById('icon-picker-container');
+            if (iconContainer) {
+                iconContainer.innerHTML = PRESET_ICONS.map(item => {
+                    const icon = typeof item === 'object' ? item.icon : item;
+                    const label = typeof item === 'object' ? (item.label || item.icon) : icon;
+                    const isSelected = icon === selectedCategoryIcon;
+                    return `
+                        <button 
+                            type="button" 
+                            onclick="selectCategoryIcon('${icon}')" 
+                            class="p-2.5 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all cursor-pointer ${isSelected ? 'border-ocean-500 bg-ocean-50 text-ocean-700 ring-2 ring-ocean-500/20' : 'border-slate-200 hover:border-slate-300 text-slate-600 hover:bg-slate-50'}"
+                            title="${label}"
+                        >
+                            <i class="ph-duotone ${icon} text-xl"></i>
+                        </button>
+                    `;
+                }).join('');
+            }
+        }
+
+        function updateCategoryPreview() {
+            const nameInput = document.getElementById('new-cat-name');
+            const nameEl = document.getElementById('cat-preview-name');
+            const iconEl = document.getElementById('cat-preview-icon');
+            const badgeEl = document.getElementById('cat-preview-badge');
+
+            const name = (nameInput && nameInput.value.trim()) ? nameInput.value.trim() : 'Category Name';
+            if (nameEl) nameEl.textContent = name;
+
+            const style = getAccentStyle(selectedCategoryAccent);
+            const safeIcon = getValidIcon(selectedCategoryIcon);
+
+            if (iconEl) {
+                iconEl.className = `w-10 h-10 rounded-xl ${style.bg} ${style.text} border ${style.border} flex items-center justify-center shrink-0`;
+                iconEl.innerHTML = `<i class="ph-duotone ${safeIcon} text-xl"></i>`;
+            }
+
+            if (badgeEl) {
+                badgeEl.className = `px-2.5 py-1 rounded-full text-xs font-bold ${style.badge}`;
+            }
+        }
+
+        function handleCreateCategory(event) {
+            event.preventDefault();
+            const nameInput = document.getElementById('new-cat-name');
+            const name = nameInput ? nameInput.value.trim() : '';
+            if (!name) {
+                showToast('Please enter a category name');
+                if (nameInput) nameInput.focus();
+                return;
+            }
+
+            const newCategory = {
+                id: 'cat_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+                name: name,
+                icon: getValidIcon(selectedCategoryIcon),
+                accent: selectedCategoryAccent || 'amber',
+                items: []
+            };
+
+            state.categories.push(newCategory);
+            saveState();
+            updateProgressBar();
+            renderCategories();
+            populateCategorySelect();
+            closeModal('add-category-modal');
+            showToast(`Created category "${name}"! ✨`);
+        }
+
+        function confirmDeleteCategory(categoryId) {
+            const cat = state.categories.find(c => c.id === categoryId);
+            if (!cat) return;
+
+            if (cat.items.length === 0) {
+                deleteCategory(categoryId);
+                return;
+            }
+
+            categoryToDeleteId = categoryId;
+            const titleEl = document.getElementById('delete-cat-modal-title');
+            const descEl = document.getElementById('delete-cat-modal-desc');
+
+            if (titleEl) {
+                titleEl.textContent = `Delete "${cat.name}"?`;
+            }
+            if (descEl) {
+                descEl.textContent = `This category contains ${cat.items.length} item${cat.items.length === 1 ? '' : 's'}. Deleting it will permanently remove all items inside it.`;
+            }
+
+            openModal('delete-category-modal');
+        }
+
+        function executeDeleteCategory() {
+            if (categoryToDeleteId) {
+                deleteCategory(categoryToDeleteId);
+                categoryToDeleteId = null;
+            }
+            closeModal('delete-category-modal');
+        }
+
+        function deleteCategory(categoryId) {
+            const catIndex = state.categories.findIndex(c => c.id === categoryId);
+            if (catIndex === -1) return;
+
+            const removed = state.categories.splice(catIndex, 1)[0];
+            saveState();
+            updateProgressBar();
+            renderCategories();
+            populateCategorySelect();
+            showToast(`Deleted category "${removed.name}"`);
+        }
+
+        // ==========================================
+        // 10. Core Checklist UI Rendering & Handlers
         // ==========================================
         function renderApp() {
             document.getElementById('trip-title-text').textContent = state.tripTitle;
@@ -1498,9 +2301,18 @@
 
         function populateCategorySelect() {
             const select = document.getElementById('new-item-category');
+            if (!select) return;
+            if (state.categories.length === 0) {
+                select.innerHTML = '<option value="">No categories available</option>';
+                return;
+            }
+            const currentVal = select.value;
             select.innerHTML = state.categories.map(cat => 
-                `<option value="${cat.id}">${cat.name}</option>`
+                `<option value="${cat.id}">${escapeHtml(cat.name)}</option>`
             ).join('');
+            if (state.categories.some(cat => cat.id === currentVal)) {
+                select.value = currentVal;
+            }
         }
 
         function updateProgressBar() {
@@ -1552,7 +2364,8 @@
             let visibleCategoriesCount = 0;
 
             const html = state.categories.map(cat => {
-                const style = ACCENT_STYLES[cat.accent] || ACCENT_STYLES.sky;
+                const style = getAccentStyle(cat.accent);
+                const safeIcon = getValidIcon(cat.icon);
                 
                 // Filter items based on active filter & search query
                 const filteredItems = cat.items.filter(item => {
@@ -1585,7 +2398,7 @@
                     <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between gap-3">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-xl ${style.bg} ${style.text} border ${style.border} flex items-center justify-center shrink-0">
-                                <i class="ph-duotone ${cat.icon} text-xl"></i>
+                                <i class="ph-duotone ${safeIcon} text-xl"></i>
                             </div>
                             <div>
                                 <h2 class="font-display font-bold text-slate-800 text-base flex items-center gap-1.5">
@@ -1600,7 +2413,7 @@
                             ${totalInCat > 0 ? `
                             <button 
                                 onclick="toggleCategoryAll('${cat.id}')" 
-                                class="text-xs font-medium text-slate-500 hover:text-ocean-600 px-2.5 py-1 rounded-lg hover:bg-slate-50 transition"
+                                class="text-xs font-medium text-slate-500 hover:text-ocean-600 px-2.5 py-1 rounded-lg hover:bg-slate-50 transition cursor-pointer"
                                 title="${allCatPacked ? 'Uncheck category' : 'Check all in category'}"
                             >
                                 ${allCatPacked ? 'Uncheck all' : 'Check all'}
@@ -1609,6 +2422,14 @@
                             <span class="px-2.5 py-1 rounded-full text-xs font-bold ${style.badge}">
                                 ${catPct}%
                             </span>
+                            <button 
+                                type="button" 
+                                onclick="confirmDeleteCategory('${cat.id}')" 
+                                class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition cursor-pointer"
+                                title="Delete category"
+                            >
+                                <i class="ph ph-trash text-base"></i>
+                            </button>
                         </div>
                     </div>
 
@@ -1648,14 +2469,14 @@
                                         <button 
                                             type="button" 
                                             onclick="changeQty('${cat.id}', '${item.id}', -1)" 
-                                            class="w-5 h-5 rounded text-slate-500 hover:bg-white hover:text-slate-800 flex items-center justify-center text-xs transition"
+                                            class="w-5 h-5 rounded text-slate-500 hover:bg-white hover:text-slate-800 flex items-center justify-center text-xs transition cursor-pointer"
                                             title="Decrease quantity"
                                         >-</button>
                                         <span class="px-1.5 text-xs font-semibold text-slate-600 min-w-[1.5rem] text-center">${item.qty || 1}x</span>
                                         <button 
                                             type="button" 
                                             onclick="changeQty('${cat.id}', '${item.id}', 1)" 
-                                            class="w-5 h-5 rounded text-slate-500 hover:bg-white hover:text-slate-800 flex items-center justify-center text-xs transition"
+                                            class="w-5 h-5 rounded text-slate-500 hover:bg-white hover:text-slate-800 flex items-center justify-center text-xs transition cursor-pointer"
                                             title="Increase quantity"
                                         >+</button>
                                     </div>
@@ -1663,7 +2484,7 @@
                                     <button 
                                         type="button" 
                                         onclick="deleteItem('${cat.id}', '${item.id}')" 
-                                        class="delete-btn sm:opacity-0 focus:opacity-100 p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
+                                        class="delete-btn sm:opacity-0 focus:opacity-100 p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition cursor-pointer"
                                         title="Delete item"
                                     >
                                         <i class="ph ph-trash text-base"></i>
@@ -1690,10 +2511,29 @@
                 `;
             }).join('');
 
-            grid.innerHTML = html;
+            let addCardHtml = '';
+            if (state.filter === 'all' && !state.searchQuery) {
+                addCardHtml = `
+                <button 
+                    type="button" 
+                    onclick="openAddCategoryModal()" 
+                    class="group h-full min-h-[160px] rounded-2xl border-2 border-dashed border-slate-200 hover:border-ocean-400 hover:bg-ocean-50/40 transition-all p-6 flex flex-col items-center justify-center gap-3 text-slate-400 hover:text-ocean-700 cursor-pointer text-center"
+                >
+                    <div class="w-12 h-12 rounded-xl bg-slate-100 group-hover:bg-ocean-100 group-hover:text-ocean-600 flex items-center justify-center text-slate-500 text-xl transition">
+                        <i class="ph-bold ph-plus"></i>
+                    </div>
+                    <div>
+                        <span class="block font-display font-bold text-sm text-slate-700 group-hover:text-ocean-700">Add New Category</span>
+                        <span class="block text-xs text-slate-400 mt-0.5">Custom icon, color & items</span>
+                    </div>
+                </button>
+                `;
+            }
+
+            grid.innerHTML = html + addCardHtml;
 
             // Toggle empty state visibility
-            if (visibleCategoriesCount === 0) {
+            if (visibleCategoriesCount === 0 && !addCardHtml) {
                 emptyState.classList.remove('hidden');
                 grid.classList.add('hidden');
             } else {
