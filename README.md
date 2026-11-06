@@ -29,7 +29,14 @@ An elegant, single-page vacation checklist and smart travel companion with an in
 * **Trip Renaming**: Customize your trip name (e.g., *"Alpine Ski Adventure"*) directly from the header.
 * **Bulk Actions**: Uncheck all items for a new trip or restore starter defaults with confirmation modals.
 
-### 3. 💾 Offline Readiness & Local Persistence
+### 3. 💬 WhatsApp Friend Invite & Seamless Onboarding
+* **One-Click WhatsApp Invite**: Share pre-crafted, rich invite messages directly to friends or travel group chats with the WhatsApp icon button in the header and trip planner.
+* **Message Tone Switcher**: Toggle between *Travel Buddies* (group trip invite) and *Packing Tool* (recommendation) presets with a live WhatsApp chat preview.
+* **Smart Recipient Onboarding**: When friends land via an invite link (`?ref=whatsapp`), a warm 3-step Quick Start Guide introduces them to the AI Trip Planner, interactive packing checklist, and customization tools.
+* **Instant Demo Integration**: Friends can jump right into the Kyoto 3-Day Demo with one click or launch the AI Trip Planner directly.
+* **Persistent Help Guide**: Accessible anytime via the *"How It Works"* button in the top navigation bar.
+
+### 4. 💾 Offline Readiness & Local Persistence
 * **localStorage State Sync**: Automatically saves both your active checklist and your latest generated trip plan across browser refreshes and sessions.
 * **Zero Dependencies**: Pure HTML5, modern CSS, and vanilla JavaScript—runs instantly in any browser without npm, Node.js builds, or external bundling.
 

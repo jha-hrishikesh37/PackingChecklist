@@ -123,19 +123,27 @@
 
             <!-- Action Buttons -->
             <div class="flex flex-wrap items-center gap-2 self-stretch md:self-auto justify-end">
-                <button onclick="toggleAiPlanner(true)" class="flex-1 md:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-amber-400 hover:bg-amber-300 text-slate-900 shadow-md shadow-amber-900/15 transition active:scale-95" title="Open AI Trip Planner & Smart Packing Sync">
+                <button onclick="openInviteModal()" class="flex-1 md:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-[#25D366] hover:bg-[#20ba5a] text-slate-950 shadow-md shadow-emerald-950/20 transition active:scale-95 cursor-pointer" title="Invite friends to Wanderlust Pack on WhatsApp">
+                    <i class="ph-bold ph-whatsapp-logo text-base text-slate-950"></i>
+                    <span>Invite Friends</span>
+                </button>
+                <button onclick="toggleAiPlanner(true)" class="flex-1 md:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-amber-400 hover:bg-amber-300 text-slate-900 shadow-md shadow-amber-900/15 transition active:scale-95 cursor-pointer" title="Open AI Trip Planner & Smart Packing Sync">
                     <i class="ph-fill ph-sparkle text-base text-amber-900"></i>
                     <span>AI Trip Planner</span>
                 </button>
-                <button onclick="openAddCategoryModal()" class="flex-1 md:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-white/10 hover:bg-white/20 text-white border border-white/15 backdrop-blur-sm transition active:scale-95" title="Create a custom category">
+                <button onclick="openModal('welcome-modal')" class="flex-1 md:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-medium bg-white/10 hover:bg-white/20 text-white border border-white/15 backdrop-blur-sm transition active:scale-95 cursor-pointer" title="How Wanderlust Pack works">
+                    <i class="ph-bold ph-question text-base"></i>
+                    <span>How It Works</span>
+                </button>
+                <button onclick="openAddCategoryModal()" class="flex-1 md:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-white/10 hover:bg-white/20 text-white border border-white/15 backdrop-blur-sm transition active:scale-95 cursor-pointer" title="Create a custom category">
                     <i class="ph-bold ph-folder-plus text-base"></i>
                     <span>Add Category</span>
                 </button>
-                <button onclick="openModal('uncheck-modal')" class="flex-1 md:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-white/10 hover:bg-white/20 text-white border border-white/15 backdrop-blur-sm transition active:scale-95">
+                <button onclick="openModal('uncheck-modal')" class="flex-1 md:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-white/10 hover:bg-white/20 text-white border border-white/15 backdrop-blur-sm transition active:scale-95 cursor-pointer">
                     <i class="ph ph-arrow-counter-clockwise text-base"></i>
                     <span>Uncheck All</span>
                 </button>
-                <button onclick="openModal('reset-modal')" class="flex-1 md:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-rose-500/20 hover:bg-rose-500/30 text-rose-100 border border-rose-300/20 backdrop-blur-sm transition active:scale-95">
+                <button onclick="openModal('reset-modal')" class="flex-1 md:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-rose-500/20 hover:bg-rose-500/30 text-rose-100 border border-rose-300/20 backdrop-blur-sm transition active:scale-95 cursor-pointer">
                     <i class="ph ph-sparkle text-base"></i>
                     <span>Reset Defaults</span>
                 </button>
@@ -305,6 +313,218 @@
     <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 pointer-events-none transition-all duration-300 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl flex items-center gap-2.5 text-sm font-medium border border-slate-700">
         <i id="toast-icon" class="ph-fill ph-check-circle text-emerald-400 text-lg"></i>
         <span id="toast-message">Action completed</span>
+    </div>
+
+    <!-- Modal: Invite Friends via WhatsApp -->
+    <div id="invite-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden animate-scale-in my-8">
+            <!-- Modal Header -->
+            <div class="p-5 sm:p-6 border-b border-slate-100 bg-gradient-to-r from-emerald-50/70 via-slate-50 to-white flex items-start justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-[#25D366] text-white flex items-center justify-center shadow-md shadow-emerald-600/25 shrink-0">
+                        <i class="ph-bold ph-whatsapp-logo text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-display text-lg font-bold text-slate-900">Invite Friends on WhatsApp</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Share Wanderlust Pack so friends can plan & pack stress-free</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeModal('invite-modal')" class="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer" title="Close modal">
+                    <i class="ph-bold ph-x text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-5 sm:p-6 space-y-4">
+                <!-- Tone Switcher -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">
+                        Choose Message Style:
+                    </label>
+                    <div class="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl" id="invite-tone-container">
+                        <button 
+                            type="button" 
+                            onclick="setInviteTone('buddies')" 
+                            id="invite-tone-buddies-btn" 
+                            class="px-3 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 bg-white text-slate-900 shadow-xs cursor-pointer"
+                        >
+                            <span>👥 Travel Buddies</span>
+                        </button>
+                        <button 
+                            type="button" 
+                            onclick="setInviteTone('recommend')" 
+                            id="invite-tone-recommend-btn" 
+                            class="px-3 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition flex items-center justify-center gap-1.5 cursor-pointer"
+                        >
+                            <span>💡 Packing Tool</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Chat Bubble Preview Box -->
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">WhatsApp Preview</span>
+                        <span class="text-[11px] text-emerald-700 font-semibold flex items-center gap-1">
+                            <i class="ph-fill ph-check text-xs"></i> Ready to send
+                        </span>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-[#E7F8E8] border border-emerald-200/80 shadow-xs relative">
+                        <p id="invite-preview-text" class="text-xs sm:text-[13px] text-slate-800 leading-relaxed font-sans whitespace-pre-wrap select-all font-normal">
+                            <!-- Populated dynamically -->
+                        </p>
+                        <div class="mt-2.5 flex items-center justify-end gap-1 text-[10px] text-slate-400">
+                            <span>Just now</span>
+                            <i class="ph-bold ph-checks text-emerald-600 text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Primary Action: Send via WhatsApp -->
+                <button 
+                    type="button" 
+                    onclick="shareToWhatsApp()" 
+                    class="w-full py-3 px-4 rounded-2xl bg-[#25D366] hover:bg-[#20ba5a] active:scale-[0.99] text-white font-bold text-sm shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 transition cursor-pointer"
+                >
+                    <i class="ph-bold ph-whatsapp-logo text-xl"></i>
+                    <span>Share on WhatsApp</span>
+                </button>
+
+                <!-- Secondary Actions: Copy Message & Copy Link -->
+                <div class="grid grid-cols-2 gap-2 pt-1">
+                    <button 
+                        type="button" 
+                        onclick="copyInviteMessage()" 
+                        class="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer"
+                        title="Copy full invite message text"
+                    >
+                        <i class="ph-bold ph-copy text-sm text-slate-600"></i>
+                        <span>Copy Message</span>
+                    </button>
+                    <button 
+                        type="button" 
+                        onclick="copyInviteLink()" 
+                        class="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer"
+                        title="Copy direct link to website"
+                    >
+                        <i class="ph-bold ph-link text-sm text-slate-600"></i>
+                        <span>Copy Link Only</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Welcome / Friend Onboarding Guide -->
+    <div id="welcome-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-100 overflow-hidden animate-scale-in my-8">
+            <!-- Modal Header Banner -->
+            <div class="relative bg-gradient-to-br from-ocean-800 via-ocean-700 to-teal-600 text-white p-6 sm:p-7 overflow-hidden">
+                <div class="absolute -right-6 -bottom-6 opacity-15 pointer-events-none text-white text-9xl">
+                    <i class="ph-fill ph-airplane-tilt"></i>
+                </div>
+                <div class="relative z-10 flex items-start justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/25 shadow-inner">
+                            <i class="ph-fill ph-suitcase text-2xl text-amber-300"></i>
+                        </div>
+                        <div>
+                            <span class="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-ocean-100 bg-white/15 px-2.5 py-0.5 rounded-full border border-white/20 mb-1">
+                                <i class="ph-fill ph-sparkle text-amber-300"></i> Smart Travel Companion
+                            </span>
+                            <h2 class="font-display text-xl sm:text-2xl font-extrabold tracking-tight">Welcome to Wanderlust Pack!</h2>
+                        </div>
+                    </div>
+                    <button type="button" onclick="closeModal('welcome-modal')" class="p-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/15 transition cursor-pointer" title="Close guide">
+                        <i class="ph-bold ph-x text-lg"></i>
+                    </button>
+                </div>
+                <p class="relative z-10 text-xs sm:text-sm text-ocean-100/90 mt-3 leading-relaxed">
+                    Planning and packing for your next adventure just got effortless. Here is how to get the most out of your checklist in 3 quick steps:
+                </p>
+            </div>
+
+            <!-- 3 Simple Steps -->
+            <div class="p-5 sm:p-6 space-y-4 max-h-[60vh] overflow-y-auto">
+                <!-- Step 1 -->
+                <div class="flex items-start gap-3.5 p-3.5 rounded-2xl bg-slate-50 border border-slate-200/70 hover:border-ocean-300 transition group">
+                    <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 font-display font-extrabold text-base shadow-xs">
+                        1
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2">
+                            <h4 class="font-display font-bold text-slate-800 text-sm sm:text-base">Plan Your Trip with AI</h4>
+                            <span class="text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">Instant</span>
+                        </div>
+                        <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+                            Enter where you're going and for how long. The AI crafts a day-by-day itinerary with weather tips and syncs climate-smart packing items directly into your list.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="flex items-start gap-3.5 p-3.5 rounded-2xl bg-slate-50 border border-slate-200/70 hover:border-ocean-300 transition group">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 font-display font-extrabold text-base shadow-xs">
+                        2
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2">
+                            <h4 class="font-display font-bold text-slate-800 text-sm sm:text-base">Pack & Track in Real Time</h4>
+                            <span class="text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">Interactive</span>
+                        </div>
+                        <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+                            Check items off as you pack your bags. The live progress bar updates in real time so you know the exact moment you are 100% ready to travel.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="flex items-start gap-3.5 p-3.5 rounded-2xl bg-slate-50 border border-slate-200/70 hover:border-ocean-300 transition group">
+                    <div class="w-10 h-10 rounded-xl bg-ocean-100 text-ocean-700 flex items-center justify-center shrink-0 font-display font-extrabold text-base shadow-xs">
+                        3
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2">
+                            <h4 class="font-display font-bold text-slate-800 text-sm sm:text-base">Customize & Auto-Save</h4>
+                            <span class="text-[10px] font-bold uppercase tracking-wider bg-ocean-100 text-ocean-800 px-2 py-0.5 rounded-full">Offline Ready</span>
+                        </div>
+                        <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+                            Add custom items, bump quantities with <span class="font-semibold text-slate-700">+</span> and <span class="font-semibold text-slate-700">-</span>, or create new categories. Everything stays saved in your browser automatically.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Call to Actions -->
+            <div class="p-5 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <button 
+                    type="button" 
+                    onclick="startWithKyotoDemo()" 
+                    class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 shadow-xs transition active:scale-95 cursor-pointer"
+                    title="See a pre-filled Kyoto trip sample"
+                >
+                    <i class="ph-fill ph-eye text-ocean-600"></i>
+                    <span>See Kyoto Demo</span>
+                </button>
+                <div class="w-full sm:w-auto flex items-center gap-2">
+                    <button 
+                        type="button" 
+                        onclick="dismissWelcomeModal()" 
+                        class="flex-1 sm:flex-initial px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-slate-600 hover:bg-slate-200/70 transition cursor-pointer"
+                    >
+                        Explore Checklist
+                    </button>
+                    <button 
+                        type="button" 
+                        onclick="startWithAiPlanner()" 
+                        class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-ocean-600 hover:bg-ocean-700 text-white shadow-md shadow-ocean-600/20 transition active:scale-95 cursor-pointer"
+                    >
+                        <i class="ph-fill ph-sparkle text-amber-300"></i>
+                        <span>Plan with AI</span>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Confirmation Modal: Uncheck All -->
@@ -906,6 +1126,21 @@
                 document.getElementById('clear-search').classList.toggle('hidden', !state.searchQuery);
                 renderCategories();
             });
+
+            // Check if user arrived via WhatsApp or friend invite link
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const hasInviteRef = urlParams.get('ref') === 'whatsapp' || 
+                                     urlParams.get('ref') === 'invite' || 
+                                     urlParams.has('invite');
+                if (hasInviteRef) {
+                    setTimeout(() => {
+                        openWelcomeModal();
+                    }, 400);
+                }
+            } catch (err) {
+                console.warn('URL search params check failed:', err);
+            }
         });
 
         // ==========================================
@@ -1540,8 +1775,16 @@
 
                             <div class="flex items-center gap-2">
                                 <button 
+                                    onclick="openInviteModal()" 
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-[#25D366] hover:bg-[#20ba5a] text-slate-950 shadow-xs transition active:scale-95 cursor-pointer"
+                                    title="Invite friends to Wanderlust Pack on WhatsApp"
+                                >
+                                    <i class="ph-bold ph-whatsapp-logo text-sm text-slate-950"></i>
+                                    <span>Invite Friends</span>
+                                </button>
+                                <button 
                                     onclick="editCurrentPlanForm()" 
-                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white/10 hover:bg-white/20 text-white border border-white/15 transition active:scale-95"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-white/10 hover:bg-white/20 text-white border border-white/15 transition active:scale-95 cursor-pointer"
                                     title="Edit destination parameters or plan a new trip"
                                 >
                                     <i class="ph ph-pencil-simple text-sm"></i>
@@ -1549,7 +1792,7 @@
                                 </button>
                                 <button 
                                     onclick="clearAiPlan()" 
-                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-rose-500/20 hover:bg-rose-500/30 text-rose-100 border border-rose-300/20 transition active:scale-95"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-rose-500/20 hover:bg-rose-500/30 text-rose-100 border border-rose-300/20 transition active:scale-95 cursor-pointer"
                                     title="Clear saved trip plan"
                                 >
                                     <i class="ph ph-trash text-sm"></i>
@@ -2666,6 +2909,176 @@
         function resetFilters() {
             clearSearch();
             setFilter('all');
+        }
+
+        // ==========================================
+        // WhatsApp Invite & Onboarding System
+        // ==========================================
+        const INVITE_PRESETS = {
+            buddies: {
+                id: 'buddies',
+                label: '👥 Travel Buddies',
+                getMessage: (url) => 
+`✈️ Hey! Planning our next trip?
+Check out Wanderlust Pack — it makes vacation packing & trip planning super easy!
+
+✨ What you can do:
+• 🤖 AI crafts a custom day-by-day itinerary & weather-smart packing list
+• 🧳 Track packing in real-time so nothing gets forgotten
+• 📱 Free, works right in your browser, and auto-saves offline
+
+👉 Come check it out:
+${url}`
+            },
+            recommend: {
+                id: 'recommend',
+                label: '💡 Packing Tool',
+                getMessage: (url) =>
+`🧳 Found this awesome travel app: Wanderlust Pack!
+It uses AI to plan your trip itinerary and generates a smart packing checklist tailored to your destination & weather.
+
+✨ No signup required, free, and keeps your packing organized!
+
+👉 Try it out here:
+${url}`
+            }
+        };
+
+        let currentInviteTone = 'buddies';
+
+        function getAppShareUrl() {
+            try {
+                const isLive = window.location.hostname.includes('workers.dev') || 
+                               window.location.hostname.includes('pages.dev') || 
+                               window.location.hostname.includes('github.io');
+                const origin = isLive ? window.location.origin : 'https://packingchecklist.jha-hrishikesh98.workers.dev';
+                const pathname = isLive ? window.location.pathname : '';
+                const cleanBase = `${origin}${pathname}`.replace(/\/$/, '');
+                return `${cleanBase}/?ref=whatsapp`;
+            } catch (e) {
+                return 'https://packingchecklist.jha-hrishikesh98.workers.dev/?ref=whatsapp';
+            }
+        }
+
+        function updateInvitePreview() {
+            const previewEl = document.getElementById('invite-preview-text');
+            if (!previewEl) return;
+            const url = getAppShareUrl();
+            const preset = INVITE_PRESETS[currentInviteTone] || INVITE_PRESETS.buddies;
+            previewEl.textContent = preset.getMessage(url);
+        }
+
+        function setInviteTone(tone) {
+            if (!INVITE_PRESETS[tone]) return;
+            currentInviteTone = tone;
+            
+            const buddiesBtn = document.getElementById('invite-tone-buddies-btn');
+            const recommendBtn = document.getElementById('invite-tone-recommend-btn');
+            
+            if (buddiesBtn && recommendBtn) {
+                if (tone === 'buddies') {
+                    buddiesBtn.className = 'px-3 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 bg-white text-slate-900 shadow-xs cursor-pointer';
+                    recommendBtn.className = 'px-3 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition flex items-center justify-center gap-1.5 cursor-pointer';
+                } else {
+                    recommendBtn.className = 'px-3 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 bg-white text-slate-900 shadow-xs cursor-pointer';
+                    buddiesBtn.className = 'px-3 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition flex items-center justify-center gap-1.5 cursor-pointer';
+                }
+            }
+            
+            updateInvitePreview();
+        }
+
+        function openInviteModal() {
+            updateInvitePreview();
+            openModal('invite-modal');
+        }
+
+        function shareToWhatsApp() {
+            const url = getAppShareUrl();
+            const preset = INVITE_PRESETS[currentInviteTone] || INVITE_PRESETS.buddies;
+            const message = preset.getMessage(url);
+            const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
+            window.open(waUrl, '_blank', 'noopener,noreferrer');
+        }
+
+        function copyInviteMessage() {
+            const url = getAppShareUrl();
+            const preset = INVITE_PRESETS[currentInviteTone] || INVITE_PRESETS.buddies;
+            const message = preset.getMessage(url);
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(message).then(() => {
+                    showToast('Invite message copied to clipboard!');
+                }).catch(() => {
+                    copyTextFallback(message, 'Invite message copied to clipboard!');
+                });
+            } else {
+                copyTextFallback(message, 'Invite message copied to clipboard!');
+            }
+        }
+
+        function copyInviteLink() {
+            const url = getAppShareUrl();
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(() => {
+                    showToast('Invite link copied to clipboard!');
+                }).catch(() => {
+                    copyTextFallback(url, 'Invite link copied to clipboard!');
+                });
+            } else {
+                copyTextFallback(url, 'Invite link copied to clipboard!');
+            }
+        }
+
+        function copyTextFallback(text, successMessage) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast(successMessage);
+            } catch (err) {
+                showToast('Unable to auto-copy. Please copy manually.');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        function openWelcomeModal() {
+            openModal('welcome-modal');
+        }
+
+        function dismissWelcomeModal() {
+            closeModal('welcome-modal');
+        }
+
+        function startWithAiPlanner() {
+            closeModal('welcome-modal');
+            toggleAiPlanner(true);
+            setTimeout(() => {
+                const section = document.getElementById('ai-planner-section');
+                if (section) {
+                    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+                const destInput = document.getElementById('ai-destination');
+                if (destInput) {
+                    destInput.focus();
+                }
+            }, 200);
+        }
+
+        function startWithKyotoDemo() {
+            closeModal('welcome-modal');
+            toggleAiPlanner(true);
+            loadSamplePlan();
+            setTimeout(() => {
+                const section = document.getElementById('ai-planner-section');
+                if (section) {
+                    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 200);
         }
 
         // --- Modals & Global Actions ---
