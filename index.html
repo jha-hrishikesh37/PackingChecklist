@@ -1708,19 +1708,20 @@
                             const badgeStyle = getAiCategoryBadgeClass(item.category);
 
                             return `
-                                <div class="bg-white rounded-xl border ${isAlreadyPresent ? 'border-slate-200/60 bg-slate-50/50' : 'border-slate-200 hover:border-ocean-300'} p-3.5 transition flex items-start gap-3">
+                                <label for="ai-item-cb-${idx}" class="bg-white rounded-xl border ${isAlreadyPresent ? 'border-emerald-200/90 bg-emerald-50/20 hover:border-emerald-300' : 'border-slate-200 hover:border-ocean-300'} p-3.5 transition flex items-start gap-3 cursor-pointer select-none">
                                     <div class="pt-0.5">
                                         <input 
                                             type="checkbox" 
-                                            class="ai-item-cb w-4 h-4 rounded text-ocean-600 focus:ring-ocean-500 cursor-pointer ${isAlreadyPresent ? 'opacity-40 cursor-not-allowed' : ''}" 
+                                            id="ai-item-cb-${idx}"
+                                            class="ai-item-cb w-4 h-4 rounded text-ocean-600 focus:ring-ocean-500 cursor-pointer" 
                                             data-index="${idx}"
-                                            ${isAlreadyPresent ? 'disabled' : 'checked'}
+                                            checked
                                             onchange="updateAiSelectedCount()"
                                         >
                                     </div>
                                     <div class="flex-1 min-w-0">
                                         <div class="flex flex-wrap items-center gap-1.5 mb-1">
-                                            <span class="text-sm font-semibold text-slate-800 ${isAlreadyPresent ? 'text-slate-500' : ''}">
+                                            <span class="text-sm font-semibold text-slate-800">
                                                 ${escapeHtml(item.item)}
                                             </span>
                                             <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold border ${badgeStyle}">
@@ -1736,7 +1737,7 @@
                                             ${escapeHtml(item.reason)}
                                         </p>
                                     </div>
-                                </div>
+                                </label>
                             `;
                         }).join('')}
                     </div>
@@ -1764,7 +1765,7 @@
         }
 
         function toggleAllAiItems(select) {
-            const checkboxes = document.querySelectorAll('.ai-item-cb:not(:disabled)');
+            const checkboxes = document.querySelectorAll('.ai-item-cb');
             checkboxes.forEach(cb => {
                 cb.checked = select;
             });
